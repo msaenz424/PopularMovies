@@ -1,10 +1,12 @@
 package com.android.mig.popularmovie;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URL;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieAdapterOnClickHandler {
 
     private static final int NUMBER_OF_COLUMNS = 2;
     private RecyclerView mRecyclerView;
@@ -32,10 +34,22 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mMoviesAdapter = new MoviesAdapter(this);
+        mMoviesAdapter = new MoviesAdapter(this, this);
         mRecyclerView.setAdapter(mMoviesAdapter);
         FetchMovieTask fetchMovieTask = new FetchMovieTask();
         fetchMovieTask.execute();
+    }
+
+    /**
+     * Opens a Detail Activity to show detail information about the movie
+     *
+     * @param movie a Movie object that contains info of one movie
+     */
+    @Override
+    public void onClick(Movie movie) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT, movie);
+        startActivity(intent);
     }
 
     public class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>>{

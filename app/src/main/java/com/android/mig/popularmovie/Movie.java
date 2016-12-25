@@ -1,10 +1,13 @@
 package com.android.mig.popularmovie;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Miguel on 12/21/2016.
  */
 
-public class Movie {
+public class Movie implements Parcelable {
 
     private int mMovieID;
     private String mTitle;
@@ -32,10 +35,46 @@ public class Movie {
         mReleaseDate = date;
     }
 
+    protected Movie(Parcel in) {
+        mMovieID = in.readInt();
+        mTitle = in.readString();
+        mPosterPath = in.readString();
+        mPlotSynopsis = in.readString();
+        mRating = in.readDouble();
+        mReleaseDate = in.readString();
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
     public int getMovieID(){return mMovieID;}
     public String getTitle(){return mTitle;}
     public String getPosterPath(){return mPosterPath;}
     public String getPlotSynopsis(){return mPlotSynopsis;}
     public Double getRating(){return mRating;}
     public String getReleaseDate(){return mReleaseDate;}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(mMovieID);
+        parcel.writeString(mTitle);
+        parcel.writeString(mPosterPath);
+        parcel.writeString(mPlotSynopsis);
+        parcel.writeDouble(mRating);
+        parcel.writeString(mReleaseDate);
+    }
 }

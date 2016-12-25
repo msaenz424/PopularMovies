@@ -1,6 +1,8 @@
 package com.android.mig.popularmovie;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,14 +19,14 @@ import java.util.ArrayList;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder>{
 
-    private static final String BASE_URL = "http://image.tmdb.org/t/p/";
-    private static final String IMAGE_SIZE = "w185/"; // valid values: "w92/", "w154/", "w185/", "w342/", "w500/", "w780/", "original/"
     private ArrayList<Movie> mMoviesData;
 
     private Context mContext;
+    final private MovieAdapterOnClickHandler movieAdapterOnClickHandle;
 
-    public MoviesAdapter(Context context){
+    public MoviesAdapter(Context context, MovieAdapterOnClickHandler clickHandler){
         mContext = context;
+        movieAdapterOnClickHandle = clickHandler;
     }
 
     /**
@@ -46,8 +48,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     @Override
     public void onBindViewHolder(MoviesAdapterViewHolder holder, int position) {
-        String path = mMoviesData.get(position).getPosterPath();
-        Picasso.with(mContext).load(BASE_URL + IMAGE_SIZE + path).into(holder.mMoviePoster);
+        Movie movie = mMoviesData.get(position);
+        Picasso.with(mContext).load(NetworkUtils.BASE_URL + NetworkUtils.IMAGE_SIZE + movie.getPosterPath()).into(holder.mMoviePoster);
     }
 
     @Override
@@ -58,12 +60,22 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         return 0;
     }
 
-    public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder{
+    public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public final ImageView mMoviePoster;
 
         public MoviesAdapterViewHolder(View view){
             super(view);
             mMoviePoster = (ImageView)view.findViewById(R.id.iv_item_movie_poster);
+            view.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View view) {
+            movieAdapterOnClickHandle.onClick(mMoviesData.get(getAdapterPosition()));
+        }
+    }
+
+    public interface MovieAdapterOnClickHandler{
+        void onClick(Movie movie);
     }
 }
