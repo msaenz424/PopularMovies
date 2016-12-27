@@ -1,18 +1,23 @@
 package com.android.mig.popularmovie;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import static android.widget.GridLayout.CENTER;
 import static android.widget.GridLayout.VERTICAL;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieAdapterOnClickHandler {
@@ -41,8 +46,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mRecyclerView.setAdapter(mMoviesAdapter);
 
         if (savedInstanceState == null) {
-            FetchMovieTask fetchMovieTask = new FetchMovieTask();
-            fetchMovieTask.execute();
+            if (isOnline()) {
+                FetchMovieTask fetchMovieTask = new FetchMovieTask();
+                fetchMovieTask.execute();
+            }else{
+                Toast toast = Toast.makeText(this, "Please check your internet connection and try again", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.show();
+            }
         }else{
             movieArrayList = savedInstanceState.getParcelableArrayList(RECYCLER_POSITION_KEY);
             mMoviesAdapter.setMoviesData(movieArrayList);
@@ -92,4 +103,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
     }
 
+    /**
+     * Checks if there is Internet connection
+     *
+     * @return true if there is connection
+     */
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 }
