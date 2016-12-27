@@ -2,6 +2,7 @@ package com.android.mig.popularmovie;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,8 +18,11 @@ import static android.widget.GridLayout.VERTICAL;
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieAdapterOnClickHandler {
 
     private static final int NUMBER_OF_COLUMNS = 2;
+    private static final String RECYCLER_POSITION_KEY = "index";
+    private ArrayList<Movie>  movieArrayList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private MoviesAdapter mMoviesAdapter;
+    GridLayoutManager gridLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,18 +30,29 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_movies);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(
+        gridLayoutManager = new GridLayoutManager(
                 this,
                 NUMBER_OF_COLUMNS,
                 VERTICAL,
                 false);
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
-
         mMoviesAdapter = new MoviesAdapter(this, this);
         mRecyclerView.setAdapter(mMoviesAdapter);
-        FetchMovieTask fetchMovieTask = new FetchMovieTask();
-        fetchMovieTask.execute();
+
+        if (savedInstanceState == null) {
+            FetchMovieTask fetchMovieTask = new FetchMovieTask();
+            fetchMovieTask.execute();
+        }else{
+            movieArrayList = savedInstanceState.getParcelableArrayList(RECYCLER_POSITION_KEY);
+            mMoviesAdapter.setMoviesData(movieArrayList);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(RECYCLER_POSITION_KEY, movieArrayList);
     }
 
     /**
@@ -71,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         protected void onPostExecute(ArrayList<Movie> moviesData) {
             if (moviesData != null){
                 mMoviesAdapter.setMoviesData(moviesData);
+                // A copy of the data is used to save the state of RecyclerView and to avoid re-fetch of data
+                movieArrayList = moviesData;
             }
         }
     }
