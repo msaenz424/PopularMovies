@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class OpenMoviesJsonUtils {
-
     /**
      * Breaks down a Json string into Json objects to save the appropriate data
      * in an ArrayList of Movie objects.
@@ -16,6 +15,7 @@ public class OpenMoviesJsonUtils {
      * @return an ArrayList of Movie objects
      */
     public static ArrayList<Movie> getMovieArrayFromJson(String movieJsonResponse){
+        final String JSON_ARRAY_RESULTS = "results";
         final String M_MOVIE_ID = "id";
         final String M_TITLE = "original_title";
         final String M_POSTER_PATH = "poster_path";
@@ -26,7 +26,7 @@ public class OpenMoviesJsonUtils {
 
         try {
             JSONObject moviesJson = new JSONObject(movieJsonResponse);
-            JSONArray moviesJsonArray = moviesJson.getJSONArray("results");
+            JSONArray moviesJsonArray = moviesJson.getJSONArray(JSON_ARRAY_RESULTS);
 
             for (int i = 0; i < moviesJsonArray.length(); i++) {
                 JSONObject resultJsonObject = moviesJsonArray.getJSONObject(i);

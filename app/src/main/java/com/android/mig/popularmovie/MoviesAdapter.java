@@ -18,9 +18,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     private Context mContext;
     final private MovieAdapterOnClickHandler movieAdapterOnClickHandle;
 
-    public MoviesAdapter(Context context, MovieAdapterOnClickHandler clickHandler){
+    public MoviesAdapter(Context context){
         mContext = context;
-        movieAdapterOnClickHandle = clickHandler;
+        movieAdapterOnClickHandle = (MovieAdapterOnClickHandler) context;
     }
 
     /**
@@ -30,11 +30,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      */
     public void setMoviesData(ArrayList<Movie> moviesData){
         mMoviesData = moviesData;
-        notifyDataSetChanged();
-    }
-
-    public void clearData(){
-        mMoviesData.clear();
         notifyDataSetChanged();
     }
 

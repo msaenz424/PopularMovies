@@ -37,28 +37,14 @@
                 android:id="@+id/tv_year_release"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/iv_poster"
-                android:text="asds" />
+                android:layout_toRightOf="@id/iv_poster" />
 
             <TextView
                 android:id="@+id/tv_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/tv_duration"
-                android:layout_alignStart="@+id/tv_duration"
-                android:layout_below="@+id/tv_duration"
-                android:layout_marginTop="23dp"
-                android:text="sadsad" />
+                android:layout_marginTop="23dp" />
 
-            <TextView
-                android:id="@+id/tv_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/tv_year_release"
-                android:layout_alignStart="@+id/tv_year_release"
-                android:layout_below="@+id/tv_year_release"
-                android:layout_marginTop="13dp"
-                android:text="sadsad" />
         </RelativeLayout>
 
         <TextView

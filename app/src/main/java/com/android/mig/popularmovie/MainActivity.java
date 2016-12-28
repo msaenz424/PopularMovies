@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
                 false);
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mMoviesAdapter = new MoviesAdapter(this, this);
+        mMoviesAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(mMoviesAdapter);
 
         // if app Activity is first created then fetch data from Internet,
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity
             if (isOnline()) {
                 fetchData();
             }else{
-                Toast toast = Toast.makeText(this, "Please check your internet connection and try again", Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, R.string.toast_no_internet_connection, Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER,0,0);
                 toast.show();
             }
@@ -110,7 +110,6 @@ public class MainActivity extends AppCompatActivity
     @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_order_by_key))){
-            mMoviesAdapter.clearData();
             fetchData();
         }
     }
