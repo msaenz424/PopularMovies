@@ -2,25 +2,28 @@ package com.android.mig.popularmovie;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import static android.widget.GridLayout.CENTER;
 import static android.widget.GridLayout.VERTICAL;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity
+        implements MoviesAdapter.MovieAdapterOnClickHandler, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int NUMBER_OF_COLUMNS = 2;
     private static final String RECYCLER_POSITION_KEY = "index";
@@ -45,10 +48,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mMoviesAdapter = new MoviesAdapter(this, this);
         mRecyclerView.setAdapter(mMoviesAdapter);
 
+        // if app Activity is first created then fetch data from Internet,
+        // otherwise load the data from the saved state
         if (savedInstanceState == null) {
             if (isOnline()) {
-                FetchMovieTask fetchMovieTask = new FetchMovieTask();
-                fetchMovieTask.execute();
+                fetchData();
             }else{
                 Toast toast = Toast.makeText(this, "Please check your internet connection and try again", Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER,0,0);
@@ -58,6 +62,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             movieArrayList = savedInstanceState.getParcelableArrayList(RECYCLER_POSITION_KEY);
             mMoviesAdapter.setMoviesData(movieArrayList);
         }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);   // registers preference changes for later notifications when updated
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // ensures that the default preferences values are set
+    }
+
+    /**
+     * Fetches data from Internet
+     */
+    private void fetchData() {
+        FetchMovieTask fetchMovieTask = new FetchMovieTask();
+        fetchMovieTask.execute();
     }
 
     @Override
@@ -78,14 +93,36 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         startActivity(intent);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings){
+            startActivity(new Intent(this, SettingsActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_order_by_key))){
+            mMoviesAdapter.clearData();
+            fetchData();
+        }
+    }
+
     public class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>>{
 
         @Override
         protected ArrayList<Movie> doInBackground(Void... voids) {
-            URL movieUrl = NetworkUtils.buildURI();
+            URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
             try {
                 String strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
-                ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(MainActivity.this, strResponse);
+                ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(strResponse);
                 return movieArrayFromJson;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -97,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         protected void onPostExecute(ArrayList<Movie> moviesData) {
             if (moviesData != null){
                 mMoviesAdapter.setMoviesData(moviesData);
-                // A copy of the data is used to save the state of RecyclerView and to avoid re-fetch of data
+                // A copy of the data is used to save the state of RecyclerView and to avoid re-fetching of data
                 movieArrayList = moviesData;
             }
         }
@@ -106,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     /**
      * Checks if there is Internet connection
      *
-     * @return true if there is connection
+     * @return true if there is connection; false if there isn't
      */
     public boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

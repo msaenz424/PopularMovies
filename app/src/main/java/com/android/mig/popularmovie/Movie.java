@@ -3,10 +3,6 @@ package com.android.mig.popularmovie;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by Miguel on 12/21/2016.
- */
-
 public class Movie implements Parcelable {
 
     private int mMovieID;

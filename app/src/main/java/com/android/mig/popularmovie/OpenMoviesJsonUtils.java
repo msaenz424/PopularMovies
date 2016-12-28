@@ -1,20 +1,21 @@
 package com.android.mig.popularmovie;
 
-import android.content.Context;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * Created by Miguel on 12/22/2016.
- */
-
 public class OpenMoviesJsonUtils {
 
-    public static ArrayList<Movie> getMovieArrayFromJson(Context context, String movieJsonResponse){
+    /**
+     * Breaks down a Json string into Json objects to save the appropriate data
+     * in an ArrayList of Movie objects.
+     *
+     * @param movieJsonResponse the Json string retrieved from the Internet
+     * @return an ArrayList of Movie objects
+     */
+    public static ArrayList<Movie> getMovieArrayFromJson(String movieJsonResponse){
         final String M_MOVIE_ID = "id";
         final String M_TITLE = "original_title";
         final String M_POSTER_PATH = "poster_path";
@@ -42,7 +43,6 @@ public class OpenMoviesJsonUtils {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        
         return mMovieArray;
     }
 }

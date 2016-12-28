@@ -10,7 +10,7 @@ import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private TextView tvTitle, tvYearRelease, tvRating, tvDuration, tvSynopsis;
+    private TextView tvTitle, tvYearRelease, tvRating, tvSynopsis;
     private ImageView ivPoster;
     private Movie mMovie;
 
@@ -23,7 +23,6 @@ public class DetailActivity extends AppCompatActivity {
         ivPoster = (ImageView) findViewById(R.id.iv_poster);
         tvYearRelease = (TextView) findViewById(R.id.tv_year_release);
         tvRating = (TextView) findViewById(R.id.tv_rating);
-        //tvDuration = (TextView) findViewById(R.id.tv_duration);
         tvSynopsis = (TextView) findViewById(R.id.tv_synopsis);
 
         Intent intent = getIntent();

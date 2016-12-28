@@ -1,8 +1,6 @@
 package com.android.mig.popularmovie;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +10,6 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-
-/**
- * Created by Miguel on 12/21/2016.
- */
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder>{
 
@@ -30,12 +24,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     }
 
     /**
-     * Sets the Adapter with an ArrayList containing the data
+     * Sets the Adapter with an ArrayList that contains the data
      *
      * @param moviesData ArrayList that contains the data
      */
     public void setMoviesData(ArrayList<Movie> moviesData){
         mMoviesData = moviesData;
+        notifyDataSetChanged();
+    }
+
+    public void clearData(){
+        mMoviesData.clear();
         notifyDataSetChanged();
     }
 
