@@ -11,6 +11,9 @@ import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
 
+    private static final float STEP_SIZE = 0.25f;
+    private static int MAX_ORIGINAL_STARS = 10;    // number of starts used on API
+    private static int NUMBER_STARS = 5;           // number of starts to be used on app
     private TextView tvTitle, tvYearRelease, tvSynopsis;
     private RatingBar rbRating;
     private ImageView ivPoster;
@@ -33,8 +36,11 @@ public class DetailActivity extends AppCompatActivity {
                 mMovie = intent.getParcelableExtra(Intent.EXTRA_TEXT);
                 tvTitle.setText(mMovie.getTitle());
                 Picasso.with(this).load(NetworkUtils.BASE_URL + NetworkUtils.IMAGE_SIZE + mMovie.getPosterPath()).into(ivPoster);
-                tvYearRelease.setText(mMovie.getReleaseDate());
-                rbRating.setRating(Float.parseFloat(mMovie.getRating().toString()));
+                tvYearRelease.setText(mMovie.getReleaseDate().substring(0, 4));             // extracts only the year
+                double newRating = mMovie.getRating() / MAX_ORIGINAL_STARS * NUMBER_STARS;  // calculates a proportional value of rating
+                rbRating.setRating(Float.parseFloat(String.valueOf(newRating)));
+                rbRating.setNumStars(NUMBER_STARS);
+                rbRating.setStepSize(STEP_SIZE);
                 tvSynopsis.setText(mMovie.getPlotSynopsis());
             }
         }

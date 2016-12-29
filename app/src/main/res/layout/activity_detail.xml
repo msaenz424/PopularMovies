@@ -40,7 +40,7 @@
             android:layout_below="@+id/tv_title"
             android:layout_marginLeft="@dimen/general_margin"
             android:layout_marginTop="@dimen/tv_date_margin_top"
-            tools:textColor="@android:color/black"/>
+            tools:textColor="@android:color/black" />
 
         <RatingBar
             android:id="@+id/rb_movies"
@@ -51,8 +51,7 @@
             android:layout_below="@+id/tv_release_date"
             android:layout_alignLeft="@+id/tv_release_date"
             android:layout_alignStart="@+id/tv_release_date"
-            android:layout_marginTop="@dimen/general_margin"
-            android:stepSize="0.1"/>
+            android:layout_marginTop="@dimen/general_margin" />
 
         <TextView
             android:layout_below="@+id/iv_poster"
@@ -64,7 +63,7 @@
             android:paddingLeft="@dimen/general_padding"
             android:paddingRight="@dimen/general_padding"
             tools:textColor="@android:color/black"
-            android:textSize="@dimen/synopsis_text_size"/>
+            android:textSize="@dimen/synopsis_text_size" />
     </RelativeLayout>
 
 
