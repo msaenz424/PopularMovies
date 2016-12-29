@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity
     private void fetchData() {
         if (isOnline()){
             showMoviesDataView();
-            mPbLoading.setVisibility(View.VISIBLE);
             FetchMovieTask fetchMovieTask = new FetchMovieTask();
             fetchMovieTask.execute();
         }else
@@ -135,12 +134,16 @@ public class MainActivity extends AppCompatActivity
     @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_order_by_key))){
-            mPbLoading.setVisibility(View.VISIBLE);
             fetchData();
         }
     }
 
     public class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mPbLoading.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected ArrayList<Movie> doInBackground(Void... voids) {
