@@ -10,17 +10,22 @@
         android:id="@+id/rv_movies"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        
     </android.support.v7.widget.RecyclerView>
     <TextView
         android:id="@+id/tv_no_connection"
         android:text="@string/error_no_connection"
         android:layout_width="match_parent"
-        android:layout_height="24dp"
+        android:layout_height="@dimen/tv_error_message_height"
         android:gravity="center"
         android:visibility="invisible"
-        android:background="#BF000000"
+        android:background="@color/tv_error_background"
         android:textColor="@android:color/background_light"
         android:layout_gravity="bottom" />
+    <ProgressBar
+        android:id="@+id/pb_loading"
+        android:layout_width="@dimen/progress_bar_size"
+        android:layout_height="@dimen/progress_bar_size"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
 
 </FrameLayout>

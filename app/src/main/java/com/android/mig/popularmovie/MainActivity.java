@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<Movie>  movieArrayList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private TextView mTvNoConnection;
+    private ProgressBar mPbLoading;
     private MoviesAdapter mMoviesAdapter;
     GridLayoutManager gridLayoutManager;
 
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_movies);
         mTvNoConnection = (TextView) findViewById(R.id.tv_no_connection);
+        mPbLoading = (ProgressBar) findViewById(R.id.pb_loading);
 
         gridLayoutManager = new GridLayoutManager(
                 this,
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity
     private void fetchData() {
         if (isOnline()){
             showMoviesDataView();
+            mPbLoading.setVisibility(View.VISIBLE);
             FetchMovieTask fetchMovieTask = new FetchMovieTask();
             fetchMovieTask.execute();
         }else
@@ -131,6 +135,7 @@ public class MainActivity extends AppCompatActivity
     @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_order_by_key))){
+            mPbLoading.setVisibility(View.VISIBLE);
             fetchData();
         }
     }
@@ -152,6 +157,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(ArrayList<Movie> moviesData) {
+            mPbLoading.setVisibility(View.INVISIBLE);
             if (moviesData != null){
                 mMoviesAdapter.setMoviesData(moviesData);
                 // A copy of the data is used to save the state of RecyclerView and to avoid re-fetching of data
