@@ -2,8 +2,8 @@
     <string name="app_name">Popular Movies</string>
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Toast messages -->
-    <string name="toast_no_internet_connection" translatable="false">Please check your internet connection and try again</string>
+    <!-- Error messages -->
+    <string name="error_no_connection" translatable="false">No network connection!</string>
 
     <!-- ListPreference Order by -->
     <string name="pref_order_by_key" translatable="false">list_preference</string>

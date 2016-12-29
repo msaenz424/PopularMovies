@@ -14,6 +14,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity
     private static final String RECYCLER_POSITION_KEY = "index";
     private ArrayList<Movie>  movieArrayList = new ArrayList<>();
     private RecyclerView mRecyclerView;
+    private TextView mTvNoConnection;
     private MoviesAdapter mMoviesAdapter;
     GridLayoutManager gridLayoutManager;
 
@@ -38,6 +41,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_movies);
+        mTvNoConnection = (TextView) findViewById(R.id.tv_no_connection);
+
         gridLayoutManager = new GridLayoutManager(
                 this,
                 NUMBER_OF_COLUMNS,
@@ -48,31 +53,47 @@ public class MainActivity extends AppCompatActivity
         mMoviesAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(mMoviesAdapter);
 
-        // if app Activity is first created then fetch data from Internet,
+        // if app Activity is first created then fetch data,
         // otherwise load the data from the saved state
-        if (savedInstanceState == null) {
-            if (isOnline()) {
-                fetchData();
-            }else{
-                Toast toast = Toast.makeText(this, R.string.toast_no_internet_connection, Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER,0,0);
-                toast.show();
-            }
-        }else{
+        if (savedInstanceState == null)
+            fetchData();
+        else{
             movieArrayList = savedInstanceState.getParcelableArrayList(RECYCLER_POSITION_KEY);
             mMoviesAdapter.setMoviesData(movieArrayList);
         }
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);   // registers preference changes for later notifications when updated
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // ensures that the default preferences values are set
     }
 
     /**
-     * Fetches data from Internet
+     * Sets the appropriate visibilities when there isn't network connection
+     */
+    public void showConnectionError(){
+        mTvNoConnection.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
+    }
+
+    /**
+     * Sets the appropriate visibilities when there is network connection
+     */
+    public void showMoviesDataView(){
+        mTvNoConnection.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Fetches data from Internet if there is internet connection,
+     * otherwise it will show an error message
      */
     private void fetchData() {
-        FetchMovieTask fetchMovieTask = new FetchMovieTask();
-        fetchMovieTask.execute();
+        if (isOnline()){
+            showMoviesDataView();
+            FetchMovieTask fetchMovieTask = new FetchMovieTask();
+            fetchMovieTask.execute();
+        }else
+            showConnectionError();
     }
 
     @Override
