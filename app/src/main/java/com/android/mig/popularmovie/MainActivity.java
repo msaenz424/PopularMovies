@@ -54,13 +54,19 @@ public class MainActivity extends AppCompatActivity
         mMoviesAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(mMoviesAdapter);
 
-        // if app Activity is first created then fetch data,
-        // otherwise load the data from the saved state
-        if (savedInstanceState == null)
-            fetchData();
-        else{
+        // if there is a savedInstanceState, display it even if there is no network connection
+        if (savedInstanceState != null) {
             movieArrayList = savedInstanceState.getParcelableArrayList(RECYCLER_POSITION_KEY);
             mMoviesAdapter.setMoviesData(movieArrayList);
+        }
+
+        mTvNoConnection.setVisibility(View.VISIBLE);
+        if (isOnline()){
+            mTvNoConnection.setVisibility(View.INVISIBLE);
+            if (savedInstanceState == null){
+                // fetches data from internet only when there are both network connection and the savedInstanceState is null
+                fetchData();
+            }
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -75,32 +81,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Sets the appropriate visibilities when there isn't network connection
-     */
-    public void showConnectionError(){
-        mTvNoConnection.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.INVISIBLE);
-    }
-
-    /**
-     * Sets the appropriate visibilities when there is network connection
-     */
-    public void showMoviesDataView(){
-        mTvNoConnection.setVisibility(View.INVISIBLE);
-        mRecyclerView.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * Fetches data from Internet if there is internet connection,
-     * otherwise it will show an error message
+     * Fetches data from Internet in a background task
      */
     private void fetchData() {
-        if (isOnline()){
-            showMoviesDataView();
-            FetchMovieTask fetchMovieTask = new FetchMovieTask();
-            fetchMovieTask.execute();
-        }else
-            showConnectionError();
+        FetchMovieTask fetchMovieTask = new FetchMovieTask();
+        fetchMovieTask.execute();
     }
 
     @Override
