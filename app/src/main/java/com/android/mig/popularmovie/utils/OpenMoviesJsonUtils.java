@@ -1,4 +1,6 @@
-package com.android.mig.popularmovie;
+package com.android.mig.popularmovie.utils;
+
+import com.android.mig.popularmovie.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;

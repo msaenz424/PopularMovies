@@ -1,9 +1,11 @@
-package com.android.mig.popularmovie;
+package com.android.mig.popularmovie.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+
+import com.android.mig.popularmovie.R;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -17,6 +17,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.mig.popularmovie.utils.NetworkUtils;
+import com.android.mig.popularmovie.utils.OpenMoviesJsonUtils;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
