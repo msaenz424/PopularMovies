@@ -1,6 +1,7 @@
 package com.android.mig.popularmovie;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +11,10 @@ import android.widget.ImageView;
 import com.android.mig.popularmovie.utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder>{
 
-    private ArrayList<Movie> mMoviesData;
-
+    private Cursor mMoviesCursor = null;
     private Context mContext;
     final private MovieAdapterOnClickHandler movieAdapterOnClickHandle;
 
@@ -25,12 +24,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     }
 
     /**
-     * Sets the Adapter with an ArrayList that contains the data
+     * Sets the Adapter with a Cursor that contains the data
      *
-     * @param moviesData ArrayList that contains the data
+     * @param cursor the Cursor that cointas the data
      */
-    public void setMoviesData(ArrayList<Movie> moviesData){
-        mMoviesData = moviesData;
+    public void setMoviesData(Cursor cursor){
+        mMoviesCursor = cursor;
         notifyDataSetChanged();
     }
 
@@ -43,15 +42,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     @Override
     public void onBindViewHolder(MoviesAdapterViewHolder holder, int position) {
-        Movie movie = mMoviesData.get(position);
-        Picasso.with(mContext).load(NetworkUtils.BASE_URL + NetworkUtils.IMAGE_SIZE + movie.getPosterPath()).into(holder.mMoviePoster);
+        mMoviesCursor.moveToPosition(position);
+        /** TODO use constant variable. 0 is the index of column "poster_path" in cursor. Only this column was retrieved on query */
+        String posterPath = mMoviesCursor.getString(0);
+        Picasso.with(mContext).load(NetworkUtils.BASE_URL + NetworkUtils.IMAGE_SIZE + posterPath).into(holder.mMoviePoster);
+
     }
 
     @Override
     public int getItemCount() {
-        if (mMoviesData != null){
-            return mMoviesData.size();
-        }
+        if (mMoviesCursor != null) return mMoviesCursor.getCount();
         return 0;
     }
 
@@ -66,7 +66,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
         @Override
         public void onClick(View view) {
-            movieAdapterOnClickHandle.onClick(mMoviesData.get(getAdapterPosition()));
+            /** TODO get data from cursor selected*/
+            //movieAdapterOnClickHandle.onClick(mMoviesData.get(getAdapterPosition()));
         }
     }
 

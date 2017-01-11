@@ -1,12 +1,16 @@
 package com.android.mig.popularmovie;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,6 +21,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.mig.popularmovie.data.MoviesContract.MoviesEntry;
 import com.android.mig.popularmovie.utils.NetworkUtils;
 import com.android.mig.popularmovie.utils.OpenMoviesJsonUtils;
 
@@ -25,13 +30,16 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
+import static com.android.mig.popularmovie.SettingsActivity.SettingsFragment.getSortByPreference;
 
 public class MainActivity extends AppCompatActivity
-        implements MoviesAdapter.MovieAdapterOnClickHandler, SharedPreferences.OnSharedPreferenceChangeListener {
+        implements MoviesAdapter.MovieAdapterOnClickHandler,
+        SharedPreferences.OnSharedPreferenceChangeListener,
+        LoaderManager.LoaderCallbacks<Cursor>{
 
-    private static final int NUMBER_OF_COLUMNS = 2;
-    private static final String RECYCLER_POSITION_KEY = "index";
-    private ArrayList<Movie>  movieArrayList = new ArrayList<>();
+    private static final int LOADER_ID = 900;
+    private static final int NUMBER_OF_COLUMNS = 2;         // number of columns in RecyclerView
+    private static final int NUMBER_OF_ROWS = 20;           // number of rows in RecyclerView
     private RecyclerView mRecyclerView;
     private TextView mTvNoConnection;
     private ProgressBar mPbLoading;
@@ -57,44 +65,21 @@ public class MainActivity extends AppCompatActivity
         mMoviesAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(mMoviesAdapter);
 
-        // if there is a savedInstanceState, display it even if there is no network connection
-        if (savedInstanceState != null) {
-            movieArrayList = savedInstanceState.getParcelableArrayList(RECYCLER_POSITION_KEY);
-            mMoviesAdapter.setMoviesData(movieArrayList);
-        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);   // registers preference changes for later notifications when updated
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // ensures that the default preferences values are set
 
         mTvNoConnection.setVisibility(View.VISIBLE);
         if (isOnline()){
             mTvNoConnection.setVisibility(View.INVISIBLE);
-            if (savedInstanceState == null){
-                // fetches data from internet only when there are both network connection and the savedInstanceState is null
-                fetchData();
-            }
+            getSupportLoaderManager().initLoader(LOADER_ID, null, this);    // this will jump to its onLoadFinished method if Loader already exists
         }
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(this);   // registers preference changes for later notifications when updated
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // ensures that the default preferences values are set
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    /**
-     * Fetches data from Internet in a background task
-     */
-    private void fetchData() {
-        FetchMovieTask fetchMovieTask = new FetchMovieTask();
-        fetchMovieTask.execute();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(RECYCLER_POSITION_KEY, movieArrayList);
     }
 
     /**
@@ -125,40 +110,101 @@ public class MainActivity extends AppCompatActivity
 
     @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_order_by_key))){
-            fetchData();
+        // if there is internet restart the Loader to fetch updated data,
+        // otherwise destroy it and show a network error message
+        if (isOnline()){
+            if (key.equals(getString(R.string.pref_order_by_key))){
+                mTvNoConnection.setVisibility(View.INVISIBLE);
+                getSupportLoaderManager().restartLoader(LOADER_ID,null, this);
+            }
+        }else{
+            mTvNoConnection.setVisibility(View.VISIBLE);
+            getSupportLoaderManager().destroyLoader(LOADER_ID);
         }
     }
 
-    public class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mPbLoading.setVisibility(View.VISIBLE);
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<Cursor>(this){
+            Cursor mMoviesCursor;
+
+            @Override
+            protected void onStartLoading() {
+                forceLoad();
+            }
+
+            @Override
+            public void deliverResult(Cursor data) {
+                mMoviesCursor = data;
+                super.deliverResult(data);
+            }
+
+            @Override
+            public Cursor loadInBackground() {
+                writeDB();
+                mMoviesCursor = readDB();
+                return mMoviesCursor;
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mPbLoading.setVisibility(View.INVISIBLE);
+        mMoviesAdapter.setMoviesData(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    /**
+     * Saves new data obtained from the internet to the local database
+     */
+    public void writeDB(){
+        URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
+        String strResponse = null;
+        try {
+            strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(strResponse);
+        ArrayList<ContentValues> movieValues = new ArrayList<>();
+
+        for (int i = 0; i < movieArrayFromJson.size(); i++){
+            ContentValues contentValue = new ContentValues();
+            contentValue.put(MoviesEntry._ID, movieArrayFromJson.get(i).getMovieID());
+            contentValue.put(MoviesEntry.COLUMN_TITLE, movieArrayFromJson.get(i).getTitle());
+            contentValue.put(MoviesEntry.COLUMN_POSTER_PATH, movieArrayFromJson.get(i).getPosterPath());
+            contentValue.put(MoviesEntry.COLUMN_PLOT_SYNOPSIS, movieArrayFromJson.get(i).getPlotSynopsis());
+            contentValue.put(MoviesEntry.COLUMN_RATING, movieArrayFromJson.get(i).getRating());
+            contentValue.put(MoviesEntry.COLUMN_POPULARITY, movieArrayFromJson.get(i).getPopularity());
+            contentValue.put(MoviesEntry.COLUMN_RELEASE_DATE, movieArrayFromJson.get(i).getReleaseDate());
+            movieValues.add(contentValue);
+        }
+        getContentResolver().bulkInsert(MoviesEntry.CONTENT_URI, movieValues.toArray(new ContentValues[movieArrayFromJson.size()]));
+    }
+
+    /**
+     * Reads data from the local database that was earlier stored from internet
+     *
+     * @return a sorted Cursor
+     */
+    public Cursor readDB(){
+        String sortBy = getSortByPreference(MainActivity.this);
+        String sortOrder = "";
+
+        if (sortBy.equals(getString(R.string.pref_order_by_popularity_value))){
+            sortOrder = MoviesEntry.COLUMN_POPULARITY + " DESC LIMIT " + NUMBER_OF_ROWS;
+        }else if (sortBy.equals(getString(R.string.pref_order_by_rating_value))){
+            sortOrder = MoviesEntry.COLUMN_RATING + " DESC LIMIT " + NUMBER_OF_ROWS;
         }
 
-        @Override
-        protected ArrayList<Movie> doInBackground(Void... voids) {
-            URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
-            try {
-                String strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
-                ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(strResponse);
-                return movieArrayFromJson;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Movie> moviesData) {
-            mPbLoading.setVisibility(View.INVISIBLE);
-            if (moviesData != null){
-                mMoviesAdapter.setMoviesData(moviesData);
-                // A copy of the data is used to save the state of RecyclerView and to avoid re-fetching of data
-                movieArrayList = moviesData;
-            }
-        }
+        String columns[] = {MoviesEntry.COLUMN_POSTER_PATH};    // columns to be retrieved from database
+        Cursor postersCursor = getContentResolver().query(MoviesEntry.CONTENT_URI, columns, null, null, sortOrder);
+        return postersCursor;
     }
 
     /**

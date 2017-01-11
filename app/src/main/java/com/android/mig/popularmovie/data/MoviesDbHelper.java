@@ -21,9 +21,10 @@ public class MoviesDbHelper extends SQLiteOpenHelper{
         final String CREATE_TABLE = "CREATE TABLE " + MoviesEntry.TABLE_MOVIES + " (" +
                 MoviesEntry._ID                     + " INTEGER PRIMARY KEY, " +
                 MoviesEntry.COLUMN_TITLE            + " TEXT NOT NULL, " +
-                MoviesEntry.COLUMN_POSTER_PATH      + " TEXT NOT NULL" +
-                MoviesEntry.COLUMN_PLOT_SYPNOSIS    + " TEXT NOT NULL, " +
-                MoviesEntry.COLUMN_RATING           + " REAL " +
+                MoviesEntry.COLUMN_POSTER_PATH      + " TEXT NOT NULL," +
+                MoviesEntry.COLUMN_PLOT_SYNOPSIS    + " TEXT NOT NULL, " +
+                MoviesEntry.COLUMN_RATING           + " REAL, " +
+                MoviesEntry.COLUMN_POPULARITY       + " REAL, " +
                 MoviesEntry.COLUMN_RELEASE_DATE     + " TEXT );";
 
         sqLiteDatabase.execSQL(CREATE_TABLE);

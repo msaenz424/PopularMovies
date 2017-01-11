@@ -19,8 +19,9 @@ public class MoviesContract {
         public static final String COLUMN_TITLE = "title";
         // "_ID" column is automatically created by BaseColumns
         public static final String COLUMN_POSTER_PATH = "poster_path";
-        public static final String COLUMN_PLOT_SYPNOSIS = "plot_synopsis";
+        public static final String COLUMN_PLOT_SYNOPSIS = "plot_synopsis";
         public static final String COLUMN_RATING = "rating";
+        public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_RELEASE_DATE = "release_date";
 
     }

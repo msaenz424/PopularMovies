@@ -1,5 +1,6 @@
 package com.android.mig.popularmovie;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -58,6 +59,20 @@ public class SettingsActivity extends AppCompatActivity {
                 preference.setSummary(stringValue);
             }
             return true;
+        }
+
+        /**
+         * Returns the user preferred sorting type in which movies are displayed
+         * @param context Activity's context
+         * @return a string that represents the sorting type
+         */
+        public static String getSortByPreference(Context context) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+
+            String keySortBy = context.getString(R.string.pref_order_by_key);
+            String defaultSortBy = context.getString(R.string.pref_order_by_default);
+
+            return sp.getString(keySortBy, defaultSortBy);
         }
     }
 }
