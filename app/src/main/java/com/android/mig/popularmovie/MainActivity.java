@@ -182,6 +182,7 @@ public class MainActivity extends AppCompatActivity
             contentValue.put(MoviesEntry.COLUMN_RATING, movieArrayFromJson.get(i).getRating());
             contentValue.put(MoviesEntry.COLUMN_POPULARITY, movieArrayFromJson.get(i).getPopularity());
             contentValue.put(MoviesEntry.COLUMN_RELEASE_DATE, movieArrayFromJson.get(i).getReleaseDate());
+            contentValue.put(MoviesEntry.COLUMN_IS_FAVORITE, movieArrayFromJson.get(i).getIsFavorite());
             movieValues.add(contentValue);
         }
         getContentResolver().bulkInsert(MoviesEntry.CONTENT_URI, movieValues.toArray(new ContentValues[movieArrayFromJson.size()]));
@@ -202,8 +203,8 @@ public class MainActivity extends AppCompatActivity
             sortOrder = MoviesEntry.COLUMN_RATING + " DESC LIMIT " + NUMBER_OF_ROWS;
         }
 
-        String columns[] = {MoviesEntry.COLUMN_POSTER_PATH};    // columns to be retrieved from database
-        Cursor postersCursor = getContentResolver().query(MoviesEntry.CONTENT_URI, columns, null, null, sortOrder);
+        // 2nd argument is null so all columns can be retrieved for later use on DetailsActivity
+        Cursor postersCursor = getContentResolver().query(MoviesEntry.CONTENT_URI, null, null, null, sortOrder);
         return postersCursor;
     }
 

@@ -40,7 +40,8 @@ public class OpenMoviesJsonUtils {
                 double rating = resultJsonObject.getDouble(M_USER_RATING);
                 double popularity = resultJsonObject.getDouble(M_POPULARITY);
                 String releaseDate = resultJsonObject.getString(M_RELEASE_DATE);
-                Movie movie = new Movie(id, title, path, plot, rating, popularity, releaseDate);
+                // last argument 0 means false in is_favorite column
+                Movie movie = new Movie(id, title, path, plot, rating, popularity, releaseDate , 0);
                 mMovieArray.add(movie);
             }
 

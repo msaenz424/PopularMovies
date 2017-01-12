@@ -43,8 +43,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     @Override
     public void onBindViewHolder(MoviesAdapterViewHolder holder, int position) {
         mMoviesCursor.moveToPosition(position);
-        /** TODO use constant variable. 0 is the index of column "poster_path" in cursor. Only this column was retrieved on query */
-        String posterPath = mMoviesCursor.getString(0);
+        /** TODO use constant variable. 2 is the index of column "poster_path" in cursor. */
+        String posterPath = mMoviesCursor.getString(2);
         Picasso.with(mContext).load(NetworkUtils.BASE_URL + NetworkUtils.IMAGE_SIZE + posterPath).into(holder.mMoviePoster);
 
     }
@@ -66,8 +66,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
         @Override
         public void onClick(View view) {
-            /** TODO get data from cursor selected*/
-            //movieAdapterOnClickHandle.onClick(mMoviesData.get(getAdapterPosition()));
+            mMoviesCursor.moveToPosition(getAdapterPosition());
+            int id = mMoviesCursor.getInt(0);
+            String title = mMoviesCursor.getString(1);
+            String posterPath  = mMoviesCursor.getString(2);
+            String plot = mMoviesCursor.getString(3);
+            double rating = mMoviesCursor.getDouble(4);
+            double popularity = mMoviesCursor.getDouble(5);
+            String date = mMoviesCursor.getString(6);
+            int isFavorite = mMoviesCursor.getInt(7);
+            Movie movie = new Movie(id, title, posterPath, plot, rating,popularity, date, isFavorite);
+            movieAdapterOnClickHandle.onClick(movie);
         }
     }
 

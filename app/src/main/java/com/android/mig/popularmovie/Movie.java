@@ -12,6 +12,7 @@ public class Movie implements Parcelable {
     private Double mRating;
     private Double mPopularity;
     private String mReleaseDate;
+    private int mIsFavorite;
 
     /**
      * Constructor class
@@ -24,7 +25,7 @@ public class Movie implements Parcelable {
      * @param popularity the popularity of the movie
      * @param date the release date of the movie
      */
-    public Movie(int id, String title, String path, String plot, Double rating, Double popularity, String date){
+    public Movie(int id, String title, String path, String plot, Double rating, Double popularity, String date, int favorite){
         mMovieID = id;
         mTitle = title;
         mPosterPath = path;
@@ -32,6 +33,7 @@ public class Movie implements Parcelable {
         mRating = rating;
         mPopularity = popularity;
         mReleaseDate = date;
+        mIsFavorite = favorite;
     }
 
     protected Movie(Parcel in) {
@@ -42,6 +44,7 @@ public class Movie implements Parcelable {
         mRating = in.readDouble();
         mPopularity = in.readDouble();
         mReleaseDate = in.readString();
+        mIsFavorite = in.readInt();
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -63,6 +66,7 @@ public class Movie implements Parcelable {
     public Double getRating(){return mRating;}
     public Double getPopularity(){return mPopularity;}
     public String getReleaseDate(){return mReleaseDate;}
+    public int getIsFavorite(){return  mIsFavorite;}
 
     @Override
     public int describeContents() {
@@ -78,5 +82,6 @@ public class Movie implements Parcelable {
         parcel.writeDouble(mRating);
         parcel.writeDouble(mPopularity);
         parcel.writeString(mReleaseDate);
+        parcel.writeInt(mIsFavorite);
     }
 }

@@ -25,8 +25,8 @@ public class MoviesDbHelper extends SQLiteOpenHelper{
                 MoviesEntry.COLUMN_PLOT_SYNOPSIS    + " TEXT NOT NULL, " +
                 MoviesEntry.COLUMN_RATING           + " REAL, " +
                 MoviesEntry.COLUMN_POPULARITY       + " REAL, " +
-                MoviesEntry.COLUMN_RELEASE_DATE     + " TEXT " +
-                MoviesEntry.COLUMN_IS_FAVORITE      + " INTEGER );";    // 1 for true, 0 for false
+                MoviesEntry.COLUMN_RELEASE_DATE     + " TEXT, " +
+                MoviesEntry.COLUMN_IS_FAVORITE      + " INTEGER);";    // 1 for true, 0 for false
 
         sqLiteDatabase.execSQL(CREATE_TABLE);
     }
