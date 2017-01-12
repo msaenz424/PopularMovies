@@ -23,6 +23,7 @@ public class MoviesContract {
         public static final String COLUMN_RATING = "rating";
         public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_RELEASE_DATE = "release_date";
+        public static final String COLUMN_IS_FAVORITE = "is_favorite";
 
     }
 }
