@@ -134,16 +134,16 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void deliverResult(Cursor data) {
-                mMoviesCursor = data;
-                super.deliverResult(data);
+            public Cursor loadInBackground() {
+                writeDB();
+                Cursor data = readDB();
+                return data;
             }
 
             @Override
-            public Cursor loadInBackground() {
-                writeDB();
-                mMoviesCursor = readDB();
-                return mMoviesCursor;
+            public void deliverResult(Cursor data) {
+                mMoviesCursor = data;
+                super.deliverResult(data);
             }
         };
     }
