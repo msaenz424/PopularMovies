@@ -1,6 +1,7 @@
 package com.android.mig.popularmovie.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -63,43 +64,47 @@ public class MoviesContentProvider extends ContentProvider {
         return retCursor;
     }
 
-    @Override
-    public int bulkInsert(Uri uri, ContentValues[] values) {
-
-        final SQLiteDatabase db = mMoviesDbHelper.getWritableDatabase();
-        switch (sUriMatcher.match(uri)){
-            case MOVIES:
-                db.beginTransaction();
-                int rowsInserted = 0;
-                try{
-                    for (ContentValues contentValue : values){
-                        long _id = db.insert(TABLE_MOVIES, null, contentValue);
-                        if (_id != -1) rowsInserted++;
-                    }
-                    db.setTransactionSuccessful();
-                }finally {
-                    db.endTransaction();
-                }
-                if (rowsInserted > 0) getContext().getContentResolver().notifyChange(uri, null);
-
-            default:
-                return super.bulkInsert(uri, values);
-        }
-    }
-
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        final SQLiteDatabase db = mMoviesDbHelper.getWritableDatabase();
+        Uri returnUri = null;
+
+        switch (sUriMatcher.match(uri)){
+            case MOVIES:
+                long id = db.insert(TABLE_MOVIES, null, contentValues);
+                if (id != -1 ){
+                    returnUri = ContentUris.withAppendedId(MoviesContract.MoviesEntry.CONTENT_URI, id);
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnUri;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues contentValues, String whereClause, String[] whereArgs) {
+        final SQLiteDatabase db = mMoviesDbHelper.getWritableDatabase();
+        int rowInserted = 0;
+        switch (sUriMatcher.match(uri)){
+            case MOVIES:
+                rowInserted = db.updateWithOnConflict(TABLE_MOVIES, contentValues, whereClause, whereArgs, SQLiteDatabase.CONFLICT_IGNORE);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (rowInserted > 0) getContext().getContentResolver().notifyChange(uri, null);
+
+        return rowInserted;
     }
 
     @Override
     public int delete(Uri uri, String s, String[] strings) {
         return 0;
     }
-
-    @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) { return 0; }
 
     @Nullable
     @Override

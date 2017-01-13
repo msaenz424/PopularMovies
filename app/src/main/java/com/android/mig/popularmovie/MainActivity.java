@@ -117,7 +117,10 @@ public class MainActivity extends AppCompatActivity
             Cursor mMoviesCursor;
 
             @Override
-            protected void onStartLoading() { forceLoad(); }
+            protected void onStartLoading() {
+                mPbLoading.setVisibility(View.VISIBLE);
+                forceLoad();
+            }
 
             @Override
             public Cursor loadInBackground() {
@@ -149,6 +152,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mPbLoading.setVisibility(View.INVISIBLE);
         mTvNoConnection.setVisibility(View.VISIBLE);
         /** TODO find a way to make use of isOnline() function only once (it's being used in loadInBackground as well) */
         if (isOnline()){
@@ -165,27 +169,29 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Saves new data fetched from the internet
+     * Updates Movies' info on database.
+     * If there are no rows to update then it inserts new rows
      *
      * @param urlResponse a string response the internet
      */
     public void writeDB(String urlResponse){
         ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(urlResponse);
-        ArrayList<ContentValues> movieValues = new ArrayList<>();
 
         for (int i = 0; i < movieArrayFromJson.size(); i++){
             ContentValues contentValue = new ContentValues();
-            contentValue.put(MoviesEntry._ID, movieArrayFromJson.get(i).getMovieID());
+            int colID = movieArrayFromJson.get(i).getMovieID();
+            contentValue.put(MoviesEntry._ID, colID );
             contentValue.put(MoviesEntry.COLUMN_TITLE, movieArrayFromJson.get(i).getTitle());
             contentValue.put(MoviesEntry.COLUMN_POSTER_PATH, movieArrayFromJson.get(i).getPosterPath());
             contentValue.put(MoviesEntry.COLUMN_PLOT_SYNOPSIS, movieArrayFromJson.get(i).getPlotSynopsis());
             contentValue.put(MoviesEntry.COLUMN_RATING, movieArrayFromJson.get(i).getRating());
             contentValue.put(MoviesEntry.COLUMN_POPULARITY, movieArrayFromJson.get(i).getPopularity());
             contentValue.put(MoviesEntry.COLUMN_RELEASE_DATE, movieArrayFromJson.get(i).getReleaseDate());
-            contentValue.put(MoviesEntry.COLUMN_IS_FAVORITE, movieArrayFromJson.get(i).getIsFavorite());
-            movieValues.add(contentValue);
+
+            int rowUpdated = getContentResolver().update(MoviesEntry.CONTENT_URI, contentValue, "_id=" + colID, null);
+
+            if (rowUpdated == 0) getContentResolver().insert(MoviesEntry.CONTENT_URI, contentValue);
         }
-        getContentResolver().bulkInsert(MoviesEntry.CONTENT_URI, movieValues.toArray(new ContentValues[movieArrayFromJson.size()]));
     }
 
     /**
