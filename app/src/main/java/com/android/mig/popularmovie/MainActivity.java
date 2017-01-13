@@ -69,11 +69,7 @@ public class MainActivity extends AppCompatActivity
         prefs.registerOnSharedPreferenceChangeListener(this);   // registers preference changes for later notifications when updated
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // ensures that the default preferences values are set
 
-        mTvNoConnection.setVisibility(View.VISIBLE);
-        if (isOnline()){
-            mTvNoConnection.setVisibility(View.INVISIBLE);
-            getSupportLoaderManager().initLoader(LOADER_ID, null, this);    // this will jump to its onLoadFinished method if Loader already exists
-        }
+        getSupportLoaderManager().initLoader(LOADER_ID, null, this);    // this will jump to its onLoadFinished method if Loader already exists
     }
 
     @Override
@@ -109,17 +105,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // if there is internet restart the Loader to fetch updated data,
-        // otherwise destroy it and show a network error message
-        if (isOnline()){
-            if (key.equals(getString(R.string.pref_order_by_key))){
-                mTvNoConnection.setVisibility(View.INVISIBLE);
-                getSupportLoaderManager().restartLoader(LOADER_ID,null, this);
-            }
-        }else{
-            mTvNoConnection.setVisibility(View.VISIBLE);
-            getSupportLoaderManager().destroyLoader(LOADER_ID);
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_order_by_key))){
+            getSupportLoaderManager().restartLoader(LOADER_ID,null, this);
         }
     }
 
@@ -129,14 +117,25 @@ public class MainActivity extends AppCompatActivity
             Cursor mMoviesCursor;
 
             @Override
-            protected void onStartLoading() {
-                forceLoad();
-            }
+            protected void onStartLoading() { forceLoad(); }
 
             @Override
             public Cursor loadInBackground() {
-                writeDB();
+                URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
+                String strResponse = null;
+                if (isOnline()){
+                    try {
+                        // if there isn't any problem getting a url response then write the DB
+                        strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
+                        writeDB(strResponse);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 Cursor data = readDB();
+                if (data.getCount() == 0){
+                    return null;
+                }
                 return data;
             }
 
@@ -150,8 +149,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mPbLoading.setVisibility(View.INVISIBLE);
-        mMoviesAdapter.setMoviesData(data);
+        mTvNoConnection.setVisibility(View.VISIBLE);
+        /** TODO find a way to make use of isOnline() function only once (it's being used in loadInBackground as well) */
+        if (isOnline()){
+            mTvNoConnection.setVisibility(View.INVISIBLE);
+        }
+        if (data != null){
+            mMoviesAdapter.setMoviesData(data);
+        }
     }
 
     @Override
@@ -160,17 +165,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Saves new data obtained from the internet to the local database
+     * Saves new data fetched from the internet
+     *
+     * @param urlResponse a string response the internet
      */
-    public void writeDB(){
-        URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
-        String strResponse = null;
-        try {
-            strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(strResponse);
+    public void writeDB(String urlResponse){
+        ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(urlResponse);
         ArrayList<ContentValues> movieValues = new ArrayList<>();
 
         for (int i = 0; i < movieArrayFromJson.size(); i++){

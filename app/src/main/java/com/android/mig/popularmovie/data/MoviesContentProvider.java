@@ -73,7 +73,7 @@ public class MoviesContentProvider extends ContentProvider {
                 int rowsInserted = 0;
                 try{
                     for (ContentValues contentValue : values){
-                        long _id = db.insert(MoviesContract.MoviesEntry.TABLE_MOVIES, null, contentValue);
+                        long _id = db.insert(TABLE_MOVIES, null, contentValue);
                         if (_id != -1) rowsInserted++;
                     }
                     db.setTransactionSuccessful();
@@ -99,9 +99,7 @@ public class MoviesContentProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
-    }
+    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) { return 0; }
 
     @Nullable
     @Override
