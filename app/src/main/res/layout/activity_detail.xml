@@ -67,14 +67,16 @@
             android:textSize="@dimen/synopsis_text_size" />
 
         <ImageButton
+            android:id="@+id/ib_favorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@android:drawable/btn_star_big_off"
-            android:layout_below="@+id/tv_title"
+            android:background="#00ffffff"
+            android:onClick="setMovieAsFavorite"
+            android:layout_alignTop="@+id/iv_poster"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:background="@color/colorBackground"
-            android:id="@+id/ib_favorite" />
+            android:layout_marginRight="@dimen/general_padding" />
     </RelativeLayout>
 
 

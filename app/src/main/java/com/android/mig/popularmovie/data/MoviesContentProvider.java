@@ -93,6 +93,9 @@ public class MoviesContentProvider extends ContentProvider {
             case MOVIES:
                 rowInserted = db.updateWithOnConflict(TABLE_MOVIES, contentValues, whereClause, whereArgs, SQLiteDatabase.CONFLICT_IGNORE);
                 break;
+            case MOVIES_WITH_ID:
+                rowInserted = db.update(TABLE_MOVIES, contentValues, whereClause, whereArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }

@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity
             contentValue.put(MoviesEntry.COLUMN_POPULARITY, movieArrayFromJson.get(i).getPopularity());
             contentValue.put(MoviesEntry.COLUMN_RELEASE_DATE, movieArrayFromJson.get(i).getReleaseDate());
 
-            int rowUpdated = getContentResolver().update(MoviesEntry.CONTENT_URI, contentValue, "_id=" + colID, null);
+            int rowUpdated = getContentResolver().update(MoviesEntry.CONTENT_URI, contentValue, "_id=?", new String[]{String.valueOf(colID)});
 
             if (rowUpdated == 0) getContentResolver().insert(MoviesEntry.CONTENT_URI, contentValue);
         }
