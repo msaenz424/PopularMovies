@@ -46,7 +46,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         /** TODO use constant variable. 2 is the index of column "poster_path" in cursor. */
         String posterPath = mMoviesCursor.getString(2);
         Picasso.with(mContext).load(NetworkUtils.BASE_URL + NetworkUtils.IMAGE_SIZE + posterPath).into(holder.mMoviePoster);
-
     }
 
     @Override

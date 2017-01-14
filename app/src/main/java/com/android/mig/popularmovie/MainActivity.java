@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     private ProgressBar mPbLoading;
     private MoviesAdapter mMoviesAdapter;
     GridLayoutManager gridLayoutManager;
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity
         mMoviesAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(mMoviesAdapter);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);   // registers preference changes for later notifications when updated
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // ensures that the default preferences values are set
 
@@ -124,17 +125,22 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public Cursor loadInBackground() {
-                URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
-                String strResponse = null;
-                if (isOnline()){
-                    try {
-                        // if there isn't any problem getting a url response then write the DB
-                        strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
-                        writeDB(strResponse);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                String currentPref = prefs.getString(getString(R.string.pref_order_by_key), "");
+                // if the current "sort by" preference is "favorites" then there is no need to fetch new data
+                if (currentPref.equals(getString(R.string.pref_order_by_popularity_value))){
+                    URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
+                    String strResponse = null;
+                    if (isOnline()){
+                        try {
+                            // if there isn't any problem getting a url response then write the DB
+                            strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
+                            writeDB(strResponse);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
+                // reads data from database
                 Cursor data = readDB();
                 if (data.getCount() == 0){
                     return null;
@@ -201,16 +207,21 @@ public class MainActivity extends AppCompatActivity
      */
     public Cursor readDB(){
         String sortBy = getSortByPreference(MainActivity.this);
-        String sortOrder = "";
+        String sortOrder = null;
+        String where = null;
+        String whereArgs[] = null ;
 
         if (sortBy.equals(getString(R.string.pref_order_by_popularity_value))){
             sortOrder = MoviesEntry.COLUMN_POPULARITY + " DESC LIMIT " + NUMBER_OF_ROWS;
         }else if (sortBy.equals(getString(R.string.pref_order_by_rating_value))){
             sortOrder = MoviesEntry.COLUMN_RATING + " DESC LIMIT " + NUMBER_OF_ROWS;
+        }else if (sortBy.equals(getString(R.string.pref_order_by_favorite_value))){
+            where = MoviesEntry.COLUMN_IS_FAVORITE + "=?";
+            whereArgs = new String[]{String.valueOf(1)};    // 1 = true, 0 = false
         }
 
         // 2nd argument is null so all columns can be retrieved for later use on DetailsActivity
-        Cursor postersCursor = getContentResolver().query(MoviesEntry.CONTENT_URI, null, null, null, sortOrder);
+        Cursor postersCursor = getContentResolver().query(MoviesEntry.CONTENT_URI, null, where, whereArgs, sortOrder);
         return postersCursor;
     }
 
