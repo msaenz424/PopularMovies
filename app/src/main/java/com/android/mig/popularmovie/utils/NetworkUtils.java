@@ -43,6 +43,25 @@ public final class NetworkUtils {
     }
 
     /**
+     * Builds the URL to query details of a movie
+     *
+     * @param movieSegment either a movie ID or a sort-by preference
+     * @return a built URL
+     */
+    public static URL buildURI(String movieSegment){
+        Uri buildUri = Uri.parse(MOVIES_AUTHORITY + MOVIES_PATH_SEGMENT + movieSegment).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                .build();
+        URL url = null;
+        try {
+            url = new URL(buildUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    /**
      * This method returns the entire result from the HTTP response.
      *
      * @param url The URL to fetch the HTTP response from.

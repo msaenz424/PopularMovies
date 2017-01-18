@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.mig.popularmovie.data.MoviesContract.MoviesEntry;
+import com.android.mig.popularmovie.sync.MoviesScheduleSync;
 import com.android.mig.popularmovie.utils.NetworkUtils;
 import com.android.mig.popularmovie.utils.OpenMoviesJsonUtils;
 
@@ -67,10 +68,12 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setAdapter(mMoviesAdapter);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(this);   // registers preference changes for later notifications when updated
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // ensures that the default preferences values are set
+        prefs.registerOnSharedPreferenceChangeListener(this);               // registers preference changes for later notifications when updated
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, true);  // ensures that the default preferences values are set
 
-        getSupportLoaderManager().initLoader(LOADER_ID, null, this);    // this will jump to its onLoadFinished method if Loader already exists
+        getSupportLoaderManager().initLoader(LOADER_ID, null, this);        // this will jump to its onLoadFinished method if Loader already exists
+
+        MoviesScheduleSync.scheduleSync(this);                              // creates a task to sync data periodically
     }
 
     @Override
@@ -119,8 +122,12 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             protected void onStartLoading() {
-                mPbLoading.setVisibility(View.VISIBLE);
-                forceLoad();
+                if (mMoviesCursor != null){
+                    deliverResult(mMoviesCursor);
+                } else {
+                    mPbLoading.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
             }
 
             @Override

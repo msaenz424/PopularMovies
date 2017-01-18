@@ -105,6 +105,39 @@ public class MoviesContentProvider extends ContentProvider {
     }
 
     @Override
+    public int bulkInsert(Uri uri, ContentValues[] contentValues) {
+        final SQLiteDatabase db = mMoviesDbHelper.getWritableDatabase();
+
+        switch (sUriMatcher.match(uri)) {
+
+            case MOVIES:
+                db.beginTransaction();
+                int rowsInserted = 0;
+                try {
+                    for (ContentValues value : contentValues) {
+                        long _id = db.insertWithOnConflict(TABLE_MOVIES, null, value, SQLiteDatabase.CONFLICT_IGNORE);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (rowsInserted > 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+
+                return rowsInserted;
+
+            default:
+                return super.bulkInsert(uri, contentValues);
+        }
+
+    }
+
+    @Override
     public int delete(Uri uri, String s, String[] strings) {
         return 0;
     }
