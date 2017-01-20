@@ -6,7 +6,7 @@
     <dimen name="tv_error_message_height">24dp</dimen>
     <dimen name="progress_bar_size">42dp</dimen>
     <dimen name="title_text_size">34sp</dimen>
-    <dimen name="synopsis_text_size">16sp</dimen>
+    <dimen name="body_text_size">16sp</dimen>
     <dimen name="date_text_size">24sp</dimen>
 
     <dimen name="general_margin">24dp</dimen>

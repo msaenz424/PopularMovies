@@ -18,6 +18,10 @@ public final class NetworkUtils {
     private static final String API_KEY_PARAM = "api_key";
     private static final String MOVIES_PATH_SEGMENT = "/movie/";
 
+    public static final String YOUTUBE_THUMBNAIL_AUTHORITY = "http://img.youtube.com/vi/";
+    public static final String YOUTUBE_THUMBNAIL_ENDPOINT = "/0.jpg";
+    public static final String VIDEOS_PATH = "/videos";
+
     /**
      * Builds the URL to query details of a movie
      *

@@ -1,6 +1,7 @@
 package com.android.mig.popularmovie.utils;
 
 import android.content.ContentValues;
+import android.util.Log;
 
 import com.android.mig.popularmovie.Movie;
 import com.android.mig.popularmovie.data.MoviesContract;
@@ -13,39 +14,25 @@ import java.util.ArrayList;
 
 public class OpenMoviesJsonUtils {
     /**
-     * Breaks down a Json string into Json objects to save the appropriate data
-     * to an ArrayList of Movie objects.
+     * Breaks down the JSON string received into a JSON object and
+     * save the trailers' key into an array
      *
-     * @param movieJsonResponse the Json string retrieved from the Internet
-     * @return an ArrayList of Movie objects
+     * @param movieJsonResponse a JSON string response
+     * @return an array list containing the trailers' keys
      */
-    public static ArrayList<Movie> getMovieArrayFromJson(String movieJsonResponse){
+    public static ArrayList<String> getTrailerArrayFromJson(String movieJsonResponse){
         final String JSON_ARRAY_RESULTS = "results";
-        final String M_MOVIE_ID = "id";
-        final String M_TITLE = "original_title";
-        final String M_POSTER_PATH = "poster_path";
-        final String M_PLOT_SYNOPSIS = "overview";
-        final String M_USER_RATING = "vote_average";
-        final String M_POPULARITY = "popularity";
-        final String M_RELEASE_DATE = "release_date";
-        ArrayList<Movie> mMovieArray = new ArrayList<>();
+        final String M_TRAILER_KEY = "key";
+        ArrayList<String> mMovieArray = new ArrayList<>();
 
         try {
-            JSONObject moviesJson = new JSONObject(movieJsonResponse);
-            JSONArray moviesJsonArray = moviesJson.getJSONArray(JSON_ARRAY_RESULTS);
+            JSONObject trailersJson = new JSONObject(movieJsonResponse);
+            JSONArray trailersJsonArray = trailersJson.getJSONArray(JSON_ARRAY_RESULTS);
 
-            for (int i = 0; i < moviesJsonArray.length(); i++) {
-                JSONObject resultJsonObject = moviesJsonArray.getJSONObject(i);
-                int id = resultJsonObject.getInt(M_MOVIE_ID);
-                String title = resultJsonObject.getString(M_TITLE);
-                String path = resultJsonObject.getString(M_POSTER_PATH);
-                String plot = resultJsonObject.getString(M_PLOT_SYNOPSIS);
-                double rating = resultJsonObject.getDouble(M_USER_RATING);
-                double popularity = resultJsonObject.getDouble(M_POPULARITY);
-                String releaseDate = resultJsonObject.getString(M_RELEASE_DATE);
-                // last argument 0 means false in is_favorite column
-                Movie movie = new Movie(id, title, path, plot, rating, popularity, releaseDate , 0);
-                mMovieArray.add(movie);
+            for (int i = 0; i < trailersJsonArray.length(); i++) {
+                JSONObject resultJsonObject = trailersJsonArray.getJSONObject(i);
+                String key = resultJsonObject.getString(M_TRAILER_KEY);
+                mMovieArray.add(key);
             }
 
         } catch (JSONException e) {
@@ -57,7 +44,7 @@ public class OpenMoviesJsonUtils {
     /**
      * Gets a single row of data from a Json object
      *
-     * @param movieJsonResponse the Json string retrieved from internet
+     * @param movieJsonResponse the Json string retrieved from the cloud
      * @return a ContentValues containing the columns of the row
      */
     public static ContentValues getSingleMovieContentValueFromJson(String movieJsonResponse) {
@@ -91,6 +78,13 @@ public class OpenMoviesJsonUtils {
         return contentValue;
     }
 
+    /**
+     * Breaks down a JSON string into Json objects and save relevant data
+     * into an array of ContentValues
+     *
+     * @param movieJsonResponse a JSON string retrieved from the cloud
+     * @return an ArrayList of Movie objects
+     */
     public static ContentValues[] getMovieContentValuesFromJson(String movieJsonResponse) {
         final String JSON_ARRAY_RESULTS = "results";
         final String M_MOVIE_ID = "id";
@@ -134,5 +128,4 @@ public class OpenMoviesJsonUtils {
         }
         return contentValuesArray;
     }
-
 }
