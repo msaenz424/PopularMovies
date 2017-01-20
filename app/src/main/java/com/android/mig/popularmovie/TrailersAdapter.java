@@ -1,9 +1,11 @@
 package com.android.mig.popularmovie;
 
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,12 +51,28 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
         return mTrailersArray.size();
     }
 
-    public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView mTrailerThumbnail;
+
 
         public TrailersAdapterViewHolder(View itemView) {
             super(itemView);
             mTrailerThumbnail = (ImageView) itemView.findViewById(R.id.iv_trailer_thumbnail);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            String key = mTrailersArray.get(getAdapterPosition());
+            Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(NetworkUtils.YOUTUBE_APP_AUTHORITY + key));
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(NetworkUtils.YOUTUBE_WEB_AUTHORITY + key));
+            // if youtube isn't installed on phone then use open it on the website
+            try {
+                mContext.startActivity(appIntent);
+            } catch (ActivityNotFoundException ex) {
+                mContext.startActivity(webIntent);
+            }
+
         }
     }
 }
