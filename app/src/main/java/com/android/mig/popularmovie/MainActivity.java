@@ -1,6 +1,5 @@
 package com.android.mig.popularmovie;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,14 +20,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.android.mig.popularmovie.data.MoviesContract.MoviesEntry;
+import com.android.mig.popularmovie.data.MoviesDbUtils;
 import com.android.mig.popularmovie.sync.MoviesScheduleSync;
-import com.android.mig.popularmovie.utils.NetworkUtils;
-import com.android.mig.popularmovie.utils.OpenMoviesJsonUtils;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
 import static com.android.mig.popularmovie.SettingsActivity.SettingsFragment.getSortByPreference;
@@ -132,25 +125,19 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public Cursor loadInBackground() {
-                String currentPref = prefs.getString(getString(R.string.pref_order_by_key), "");
-                // if the current "sort by" preference is "favorites" then there is no need to fetch new data
-                if (currentPref.equals(getString(R.string.pref_order_by_popularity_value))){
-                    URL movieUrl = NetworkUtils.buildURI(MainActivity.this);
-                    String strResponse = null;
-                    if (isOnline()){
-                        try {
-                            // if there isn't any problem getting a url response then write the DB
-                            strResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
-                            writeDB(strResponse);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
                 // reads data from database
-                Cursor data = readDB();
-                if (data.getCount() == 0){
-                    return null;
+                String sortByPreference = getSortByPreference(MainActivity.this);
+                Cursor data = MoviesDbUtils.readDbSortedByPreference(MainActivity.this, sortByPreference, NUMBER_OF_ROWS);
+
+                // if cursor is empty and favorites isn't the preference selected then download and insert new data
+                // This should happen only the first time that app is opened. Keep in mind that if user doesn't
+                // have any favorite movie the cursor will return empty too.
+                if (data.getCount() == 0 && !sortByPreference.equals(getString(R.string.pref_order_by_favorite_value))){
+                    if (isOnline()){
+                        MoviesDbUtils.insertNewDataFromTheCloud(MainActivity.this, getString(R.string.pref_order_by_popularity_value));
+                        MoviesDbUtils.insertNewDataFromTheCloud(MainActivity.this, getString(R.string.pref_order_by_rating_value));
+                        return MoviesDbUtils.readDbSortedByPreference(MainActivity.this, sortByPreference, NUMBER_OF_ROWS);
+                    }
                 }
                 return data;
             }
@@ -179,57 +166,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
-    }
-
-    /**
-     * Updates Movies' info on database.
-     * If there are no rows to update then it inserts new rows
-     *
-     * @param urlResponse a string response the internet
-     */
-    public void writeDB(String urlResponse){
-        ArrayList<Movie> movieArrayFromJson = OpenMoviesJsonUtils.getMovieArrayFromJson(urlResponse);
-
-        for (int i = 0; i < movieArrayFromJson.size(); i++){
-            ContentValues contentValue = new ContentValues();
-            int colID = movieArrayFromJson.get(i).getMovieID();
-            contentValue.put(MoviesEntry._ID, colID );
-            contentValue.put(MoviesEntry.COLUMN_TITLE, movieArrayFromJson.get(i).getTitle());
-            contentValue.put(MoviesEntry.COLUMN_POSTER_PATH, movieArrayFromJson.get(i).getPosterPath());
-            contentValue.put(MoviesEntry.COLUMN_PLOT_SYNOPSIS, movieArrayFromJson.get(i).getPlotSynopsis());
-            contentValue.put(MoviesEntry.COLUMN_RATING, movieArrayFromJson.get(i).getRating());
-            contentValue.put(MoviesEntry.COLUMN_POPULARITY, movieArrayFromJson.get(i).getPopularity());
-            contentValue.put(MoviesEntry.COLUMN_RELEASE_DATE, movieArrayFromJson.get(i).getReleaseDate());
-
-            int rowUpdated = getContentResolver().update(MoviesEntry.CONTENT_URI, contentValue, "_id=?", new String[]{String.valueOf(colID)});
-
-            if (rowUpdated == 0) getContentResolver().insert(MoviesEntry.CONTENT_URI, contentValue);
-        }
-    }
-
-    /**
-     * Reads data from the local database that was earlier stored from internet
-     *
-     * @return a sorted Cursor
-     */
-    public Cursor readDB(){
-        String sortBy = getSortByPreference(MainActivity.this);
-        String sortOrder = null;
-        String where = null;
-        String whereArgs[] = null ;
-
-        if (sortBy.equals(getString(R.string.pref_order_by_popularity_value))){
-            sortOrder = MoviesEntry.COLUMN_POPULARITY + " DESC LIMIT " + NUMBER_OF_ROWS;
-        }else if (sortBy.equals(getString(R.string.pref_order_by_rating_value))){
-            sortOrder = MoviesEntry.COLUMN_RATING + " DESC LIMIT " + NUMBER_OF_ROWS;
-        }else if (sortBy.equals(getString(R.string.pref_order_by_favorite_value))){
-            where = MoviesEntry.COLUMN_IS_FAVORITE + "=?";
-            whereArgs = new String[]{String.valueOf(1)};    // 1 = true, 0 = false
-        }
-
-        // 2nd argument is null so all columns can be retrieved for later use on DetailsActivity
-        Cursor postersCursor = getContentResolver().query(MoviesEntry.CONTENT_URI, null, where, whereArgs, sortOrder);
-        return postersCursor;
     }
 
     /**

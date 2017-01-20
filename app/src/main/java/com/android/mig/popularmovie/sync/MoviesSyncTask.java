@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import com.android.mig.popularmovie.R;
 import com.android.mig.popularmovie.data.MoviesContract;
+import com.android.mig.popularmovie.data.MoviesDbUtils;
 import com.android.mig.popularmovie.utils.NetworkUtils;
 import com.android.mig.popularmovie.utils.OpenMoviesJsonUtils;
 import java.io.IOException;
@@ -39,22 +40,8 @@ public class MoviesSyncTask {
                 }
             }
 
-            /** TODO find a way to run the lines below inside a loop */
-            // download new data and insert to DB, ignore existing rows (for popular)
-            String sortByPopularity = context.getString(R.string.pref_order_by_popularity_value);
-            URL popularMoviesUrl = NetworkUtils.buildURI(sortByPopularity);
-            String urlResponse1 = NetworkUtils.getResponseFromHttpUrl(popularMoviesUrl);
-
-            ContentValues[] popularContentValues = OpenMoviesJsonUtils.getMovieContentValuesFromJson(urlResponse1);
-            context.getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, popularContentValues);
-
-            // download new data and insert to DB, ignore existing rows (for top_rated)
-            String sortByRating = context.getString(R.string.pref_order_by_rating_value);
-            URL ratingMoviesUrl = NetworkUtils.buildURI(sortByRating);
-            String urlResponse2 = NetworkUtils.getResponseFromHttpUrl(ratingMoviesUrl);
-
-            ContentValues[] ratedContentValuesArray = OpenMoviesJsonUtils.getMovieContentValuesFromJson(urlResponse2);
-            context.getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, ratedContentValuesArray);
+            MoviesDbUtils.insertNewDataFromTheCloud(context, context.getString(R.string.pref_order_by_popularity_value));
+            MoviesDbUtils.insertNewDataFromTheCloud(context, context.getString(R.string.pref_order_by_rating_value));
 
         } catch (IOException e) {
             e.printStackTrace();

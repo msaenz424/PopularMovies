@@ -1,12 +1,6 @@
 package com.android.mig.popularmovie.utils;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
-
-import com.android.mig.popularmovie.R;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -23,24 +17,6 @@ public final class NetworkUtils {
     private static final String API_KEY = "[YOUR API KEY GOES HERE]"; // update your API KEY for app to work
     private static final String API_KEY_PARAM = "api_key";
     private static final String MOVIES_PATH_SEGMENT = "/movie/";
-
-    /**
-     * Builds the URL to query the data
-     *
-     * @return a built URL
-     */
-    public static URL buildURI(Context context){
-        Uri buildUri = Uri.parse(MOVIES_AUTHORITY + MOVIES_PATH_SEGMENT + getQueryEndPoint(context)).buildUpon()
-                .appendQueryParameter(API_KEY_PARAM, API_KEY)
-                .build();
-        URL url = null;
-        try {
-            url = new URL(buildUri.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
-    }
 
     /**
      * Builds the URL to query details of a movie
@@ -85,20 +61,5 @@ public final class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
-    }
-
-    /**
-     * Retrieves the default value of order by in Preferences.
-     *
-     * @param context The Context of Activity
-     * @returns either "popular" or "top_rated"
-     */
-    public static String getQueryEndPoint(Context context){
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String orderBy = sharedPrefs.getString(
-                context.getString(R.string.pref_order_by_key),
-                context.getString(R.string.pref_order_by_default)
-        );
-        return orderBy;
     }
 }
