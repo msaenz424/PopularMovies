@@ -21,5 +21,6 @@
 
     <!-- DetailsActivity -->
     <string name="trailer_label" translatable="false">Trailers</string>
+    <string name="no_trailers_label" translatable="false">No trailers available</string>
 
 </resources>

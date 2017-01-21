@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -35,11 +36,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private static final int TRAILER_LOADER_ID = 77;
     private static int MAX_ORIGINAL_STARS = 10;    // number of starts used on API
     private static int NUMBER_STARS = 5;           // number of starts to be used on app
-    private TextView tvTitle, tvYearRelease, tvSynopsis;
+    private TextView tvTitle, tvYearRelease, tvSynopsis, tvTrailerLabel;
     private RatingBar rbRating;
     private ImageView ivPoster;
     private ImageButton ibFavorite;
     private RecyclerView rvTrailers;
+    private ProgressBar pbLoadingTrailers;
     private LinearLayoutManager mLinearLayoutManager;
     private TrailersAdapter mTrailerAdapter;
     private boolean mIsFavorite;
@@ -58,6 +60,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         tvSynopsis = (TextView) findViewById(R.id.tv_synopsis);
         ibFavorite = (ImageButton) findViewById(R.id.ib_favorite);
         rvTrailers = (RecyclerView) findViewById(R.id.rv_trailers);
+        tvTrailerLabel = (TextView)findViewById(R.id.tv_trailer_label);
+        pbLoadingTrailers = (ProgressBar) findViewById(R.id.pb_loading_trailers);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -137,6 +141,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
             @Override
             protected void onStartLoading() {
+                pbLoadingTrailers.setVisibility(View.VISIBLE);
                 if (mTrailersKeys != null){
                     deliverResult(mTrailersKeys);
                 }
@@ -150,7 +155,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 try {
                     String jsonResponse = NetworkUtils.getResponseFromHttpUrl(movieURL);
                     arrayFromJson = OpenMoviesJsonUtils.getTrailerArrayFromJson(jsonResponse);
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -167,7 +171,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<ArrayList<String>> loader, ArrayList<String> data) {
-        mTrailerAdapter.setTrailersData(data);
+        pbLoadingTrailers.setVisibility(View.INVISIBLE);
+        if (data.size() == 0){
+            tvTrailerLabel.setText(getString(R.string.no_trailers_label));
+        }else {
+            tvTrailerLabel.setText(getString(R.string.trailer_label));
+            mTrailerAdapter.setTrailersData(data);
+        }
     }
 
     @Override

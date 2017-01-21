@@ -112,18 +112,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                    <TextView
-                        android:id="@+id/tv_trailer_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/trailer_label"
-                        android:textSize="@dimen/body_text_size"/>
+                <TextView
+                    android:id="@+id/tv_trailer_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trailer_label"
+                    android:textSize="@dimen/body_text_size"/>
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rv_trailers"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_below="@+id/tv_trailer_label"/>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_trailers"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/tv_trailer_label"/>
+
+                <ProgressBar
+                    android:id="@+id/pb_loading_trailers"
+                    android:layout_width="@dimen/progress_bar_size"
+                    android:layout_height="@dimen/progress_bar_size"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible"/>
 
             </RelativeLayout>
 
