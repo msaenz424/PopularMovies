@@ -7,10 +7,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,6 +49,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private ReviewsAdapter mReviewsAdapter;
     private boolean mIsFavorite;
     private int mMovieID;
+    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +106,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
-            case R.id.action_settings:
+            case R.id.action_details_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
         }
@@ -112,8 +115,35 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_details, menu);
+        MenuItem item = menu.findItem(R.id.action_details_share);
+
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
         return true;
+    }
+
+    /**
+     * Sets the share intent
+     * @param shareIntent a created share intent
+     */
+    private void setShareIntent(Intent shareIntent) {
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
+    }
+
+    /**
+     * Creates an intent with the url of the first trailer
+     * @return a share intent
+     */
+    private Intent createShareIntent(){
+        String url = NetworkUtils.YOUTUBE_WEB_AUTHORITY + mTrailerAdapter.getFirstTrailer();
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, url);
+        sendIntent.setType("text/plain");
+        return sendIntent;
     }
 
     /**
@@ -222,6 +252,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 }else {
                     tvTrailerLabel.setText(getString(R.string.trailer_label));
                     mTrailerAdapter.setTrailersData(data);
+                    // Share Intent needs to be created after the adapter for trailer exist
+                    // because the url key is obtained from the adapter
+                    setShareIntent(createShareIntent());
                 }
                 break;
             case REVIEW_LOADER_ID:

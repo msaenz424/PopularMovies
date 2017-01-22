@@ -51,6 +51,8 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
         return mTrailersArray.size();
     }
 
+    public String getFirstTrailer() { return mTrailersArray.get(0); }
+
     public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView mTrailerThumbnail;
 
