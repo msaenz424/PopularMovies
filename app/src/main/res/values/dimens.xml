@@ -15,6 +15,7 @@
     <dimen name="rating_bar_top_margin">16dp</dimen>
     <dimen name="tv_date_top_margin">24dp</dimen>
     <dimen name="tv_synopsis_top_margin">8dp</dimen>
+    <dimen name="tv_review_content_margin">8dp</dimen>
 
     <dimen name="poster_width">120dp</dimen>
     <dimen name="poster_height">160dp</dimen>

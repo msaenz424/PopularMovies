@@ -1,9 +1,6 @@
 package com.android.mig.popularmovie.utils;
 
 import android.content.ContentValues;
-import android.util.Log;
-
-import com.android.mig.popularmovie.Movie;
 import com.android.mig.popularmovie.data.MoviesContract;
 
 import org.json.JSONArray;
@@ -13,34 +10,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class OpenMoviesJsonUtils {
-    /**
-     * Breaks down the JSON string received into a JSON object and
-     * save the trailers' key into an array
-     *
-     * @param movieJsonResponse a JSON string response
-     * @return an array list containing the trailers' keys
-     */
-    public static ArrayList<String> getTrailerArrayFromJson(String movieJsonResponse){
-        final String JSON_ARRAY_RESULTS = "results";
-        final String M_TRAILER_KEY = "key";
-        ArrayList<String> mMovieArray = new ArrayList<>();
-
-        try {
-            JSONObject trailersJson = new JSONObject(movieJsonResponse);
-            JSONArray trailersJsonArray = trailersJson.getJSONArray(JSON_ARRAY_RESULTS);
-
-            for (int i = 0; i < trailersJsonArray.length(); i++) {
-                JSONObject resultJsonObject = trailersJsonArray.getJSONObject(i);
-                String key = resultJsonObject.getString(M_TRAILER_KEY);
-                mMovieArray.add(key);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return mMovieArray;
-    }
-
     /**
      * Gets a single row of data from a Json object
      *
@@ -128,4 +97,61 @@ public class OpenMoviesJsonUtils {
         }
         return contentValuesArray;
     }
+
+    /**
+     * Breaks down the JSON string received into a JSON object and
+     * save the trailers' key into an array
+     *
+     * @param movieJsonResponse a JSON string response
+     * @return an array list containing the trailers' keys
+     */
+    public static ArrayList<String> getTrailerArrayFromJson(String movieJsonResponse){
+        final String JSON_ARRAY_RESULTS = "results";
+        final String M_TRAILER_KEY = "key";
+        ArrayList<String> mTrailerArray = new ArrayList<>();
+
+        try {
+            JSONObject trailersJson = new JSONObject(movieJsonResponse);
+            JSONArray trailersJsonArray = trailersJson.getJSONArray(JSON_ARRAY_RESULTS);
+
+            for (int i = 0; i < trailersJsonArray.length(); i++) {
+                JSONObject resultJsonObject = trailersJsonArray.getJSONObject(i);
+                String key = resultJsonObject.getString(M_TRAILER_KEY);
+                mTrailerArray.add(key);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return mTrailerArray;
+    }
+
+    /**
+     * Breaks down the JSON string received into a JSON object and
+     * save the reviews' content into an array
+     *
+     * @param movieJsonResponse a JSON string response
+     * @return an array list containing the review's contents
+     */
+    public static ArrayList<String> getReviewsArrayFromJson(String movieJsonResponse){
+        final String JSON_ARRAY_RESULTS = "results";
+        final String M_REVIEW_KEY = "content";
+        ArrayList<String> mReviewArray = new ArrayList<>();
+
+        try {
+            JSONObject trailersJson = new JSONObject(movieJsonResponse);
+            JSONArray trailersJsonArray = trailersJson.getJSONArray(JSON_ARRAY_RESULTS);
+
+            for (int i = 0; i < trailersJsonArray.length(); i++) {
+                JSONObject resultJsonObject = trailersJsonArray.getJSONObject(i);
+                String content = resultJsonObject.getString(M_REVIEW_KEY);
+                mReviewArray.add(content);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return mReviewArray;
+    }
+
 }

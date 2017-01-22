@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,16 +33,18 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
     private static final float STEP_SIZE = 0.25f;
     private static final int TRAILER_LOADER_ID = 77;
+    private static final int REVIEW_LOADER_ID = 88;
     private static int MAX_ORIGINAL_STARS = 10;    // number of starts used on API
     private static int NUMBER_STARS = 5;           // number of starts to be used on app
-    private TextView tvTitle, tvYearRelease, tvSynopsis, tvTrailerLabel;
+    private TextView tvTitle, tvYearRelease, tvSynopsis, tvTrailerLabel, tvCardviewReviewLabel;
     private RatingBar rbRating;
     private ImageView ivPoster;
     private ImageButton ibFavorite;
-    private RecyclerView rvTrailers;
-    private ProgressBar pbLoadingTrailers;
-    private LinearLayoutManager mLinearLayoutManager;
+    private RecyclerView rvTrailers, rvReviews;
+    private ProgressBar pbLoadingTrailers, pbLoadingReviews;
+    private LinearLayoutManager mLinearLayoutManager, mReviewLinearLayoutManager;
     private TrailersAdapter mTrailerAdapter;
+    private ReviewsAdapter mReviewsAdapter;
     private boolean mIsFavorite;
     private int mMovieID;
 
@@ -62,6 +63,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         rvTrailers = (RecyclerView) findViewById(R.id.rv_trailers);
         tvTrailerLabel = (TextView)findViewById(R.id.tv_trailer_label);
         pbLoadingTrailers = (ProgressBar) findViewById(R.id.pb_loading_trailers);
+        rvReviews = (RecyclerView) findViewById(R.id.rv_reviews);
+        tvCardviewReviewLabel = (TextView)findViewById(R.id.tv_cardview_review_label);
+        pbLoadingReviews = (ProgressBar) findViewById(R.id.pb_loading_reviews);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -85,6 +89,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mTrailerAdapter = new TrailersAdapter(this);
         rvTrailers.setAdapter(mTrailerAdapter);
         getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, null, this);
+
+        mReviewLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rvReviews.setLayoutManager(mReviewLinearLayoutManager);
+        mReviewsAdapter = new ReviewsAdapter();
+        rvReviews.setAdapter(mReviewsAdapter);
+        getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, null, this);
     }
 
     @Override
@@ -132,31 +142,56 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     /**
-     * Loader for displaying trailer thumbnails
+     * Loader for displaying trailer thumbnails and reviews
      */
     @Override
-    public Loader<ArrayList<String>> onCreateLoader(int id, Bundle args) {
+    public Loader<ArrayList<String>> onCreateLoader(final int id, Bundle args) {
         return new AsyncTaskLoader<ArrayList<String>>(this) {
             ArrayList<String> mTrailersKeys;
+            ArrayList<String> mReviews;
 
             @Override
             protected void onStartLoading() {
-                pbLoadingTrailers.setVisibility(View.VISIBLE);
-                if (mTrailersKeys != null){
-                    deliverResult(mTrailersKeys);
+                switch (id){
+                    case TRAILER_LOADER_ID:
+                        pbLoadingTrailers.setVisibility(View.VISIBLE);
+                        if (mTrailersKeys != null){
+                            deliverResult(mTrailersKeys);
+                        }
+                        forceLoad();
+                        break;
+                    case REVIEW_LOADER_ID:
+                        pbLoadingReviews.setVisibility(View.VISIBLE);
+                        if(mReviews != null){
+                            deliverResult(mReviews);
+                        }
+                        forceLoad();
+                        break;
                 }
-                forceLoad();
             }
 
             @Override
             public ArrayList<String> loadInBackground() {
                 ArrayList<String> arrayFromJson = new ArrayList<>();
-                URL movieURL = NetworkUtils.buildURI(String.valueOf(mMovieID) + NetworkUtils.VIDEOS_PATH);
-                try {
-                    String jsonResponse = NetworkUtils.getResponseFromHttpUrl(movieURL);
-                    arrayFromJson = OpenMoviesJsonUtils.getTrailerArrayFromJson(jsonResponse);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                switch (id){
+                    case TRAILER_LOADER_ID:
+                        URL videosURL = NetworkUtils.buildURI(String.valueOf(mMovieID) + NetworkUtils.VIDEOS_PATH);
+                        try {
+                            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(videosURL);
+                            arrayFromJson = OpenMoviesJsonUtils.getTrailerArrayFromJson(jsonResponse);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    break;
+                    case REVIEW_LOADER_ID:
+                        URL reviewsURL = NetworkUtils.buildURI(String.valueOf(mMovieID) + NetworkUtils.REVIEWS_PATH);
+                        try {
+                            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(reviewsURL);
+                            arrayFromJson = OpenMoviesJsonUtils.getReviewsArrayFromJson(jsonResponse);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
                 }
                 return arrayFromJson;
             }
@@ -164,20 +199,43 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             @Override
             public void deliverResult(ArrayList<String> data) {
                 super.deliverResult(data);
-                mTrailersKeys = data;
+                switch (id){
+                    case TRAILER_LOADER_ID:
+                        mTrailersKeys = data;
+                        break;
+                    case REVIEW_LOADER_ID:
+                        mReviews = data;
+                        break;
+                }
+
             }
         };
     }
 
     @Override
     public void onLoadFinished(Loader<ArrayList<String>> loader, ArrayList<String> data) {
-        pbLoadingTrailers.setVisibility(View.INVISIBLE);
-        if (data.size() == 0){
-            tvTrailerLabel.setText(getString(R.string.no_trailers_label));
-        }else {
-            tvTrailerLabel.setText(getString(R.string.trailer_label));
-            mTrailerAdapter.setTrailersData(data);
+        switch (loader.getId()){
+            case TRAILER_LOADER_ID:
+                pbLoadingTrailers.setVisibility(View.INVISIBLE);
+                if (data.size() == 0){
+                    tvTrailerLabel.setText(getString(R.string.no_trailers_label));
+                }else {
+                    tvTrailerLabel.setText(getString(R.string.trailer_label));
+                    mTrailerAdapter.setTrailersData(data);
+                }
+                break;
+            case REVIEW_LOADER_ID:
+                pbLoadingReviews.setVisibility(View.INVISIBLE);
+                if (data.size() == 0){
+                    tvCardviewReviewLabel.setVisibility(View.VISIBLE);
+                    tvCardviewReviewLabel.setText(getString(R.string.no_reviews_label));
+                }else {
+                    tvCardviewReviewLabel.setVisibility(View.INVISIBLE);
+                    mReviewsAdapter.setReviewsData(data);
+                }
+                break;
         }
+
     }
 
     @Override

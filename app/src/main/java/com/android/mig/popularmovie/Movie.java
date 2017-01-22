@@ -20,7 +20,7 @@ public class Movie implements Parcelable {
      * @param id ID of movie
      * @param title title of movie
      * @param path the poster path where the image is stored
-     * @param plot the plot sypnosis of the movie
+     * @param plot the plot synopsis of the movie
      * @param rating the user rating for the movie
      * @param popularity the popularity of the movie
      * @param date the release date of the movie

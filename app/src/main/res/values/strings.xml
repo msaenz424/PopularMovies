@@ -22,5 +22,7 @@
     <!-- DetailsActivity -->
     <string name="trailer_label" translatable="false">Trailers</string>
     <string name="no_trailers_label" translatable="false">No trailers available</string>
+    <string name="review_label" translatable="false">Review </string>
+    <string name="no_reviews_label" translatable="false">No reviews yet</string>
 
 </resources>

@@ -23,6 +23,7 @@ public final class NetworkUtils {
     public static final String YOUTUBE_THUMBNAIL_AUTHORITY = "http://img.youtube.com/vi/";
     public static final String YOUTUBE_THUMBNAIL_ENDPOINT = "/0.jpg";
     public static final String VIDEOS_PATH = "/videos";
+    public static final String REVIEWS_PATH = "/reviews";
 
     /**
      * Builds the URL to query details of a movie
