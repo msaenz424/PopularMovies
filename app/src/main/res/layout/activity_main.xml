@@ -19,7 +19,7 @@
         android:gravity="center"
         android:visibility="invisible"
         android:background="@color/tv_error_background"
-        android:textColor="@color/colorSubtitle"
+        android:textColor="@color/colorCardView"
         android:layout_gravity="bottom" />
     <ProgressBar
         android:id="@+id/pb_loading"

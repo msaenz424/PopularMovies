@@ -31,7 +31,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsA
     @Override
     public void onBindViewHolder(ReviewsAdapterViewHolder holder, int position) {
         String review = mReviewsArray.get(position);
-        holder.mReviewLabel.setText(holder.mReviewLabel.getText() + String.valueOf(position + 1));
+        holder.mReviewLabel.setText(holder.mReviewLabel.getText() + " " + String.valueOf(position + 1));
         holder.mReviewText.setText(review);
     }
 

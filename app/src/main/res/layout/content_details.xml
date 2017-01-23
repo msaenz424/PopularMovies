@@ -1,76 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".DetailActivity"
+    tools:showIn="@layout/activity_details"
     android:background="@color/colorBackground">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:text="TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/title_text_size"
-            android:padding="@dimen/general_padding"
-            android:background="@color/colorSubtitle"
-            tools:textColor="@android:color/black" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <android.support.v7.widget.CardView
             android:id="@+id/card_view_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_title"
-            app:cardBackgroundColor="@color/colorBackground2"
+            app:cardBackgroundColor="@color/colorCardView"
             card_view:contentPadding="@dimen/card_view_content_padding"
-            card_view:elevation="@dimen/card_view_content_padding"
-            card_view:cardCornerRadius="@dimen/card_view_content_padding"
+            card_view:elevation="@dimen/card_view_elevation"
+            card_view:cardCornerRadius="@dimen/card_view_elevation"
+            android:translationZ="@dimen/card_view_elevation"
             card_view:cardUseCompatPadding="true">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorBackground2">
-
-                <ImageView
-                    android:id="@+id/iv_poster"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_width="120dp"
-                    android:layout_height="160dp" />
+                android:background="@color/colorCardView">
 
                 <TextView
                     android:id="@+id/tv_release_date"
-                    android:text="date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/date_text_size"
                     tools:textColor="@android:color/black"
-                    app:layout_constraintLeft_toRightOf="@+id/iv_poster"
+                    app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginTop="@dimen/tv_date_top_margin"
-                    android:layout_marginStart="@dimen/general_margin"
-                    android:layout_marginLeft="@dimen/general_margin" />
+                    android:layout_marginLeft="@dimen/general_margin"
+                    android:layout_marginStart="@dimen/general_margin" />
 
                 <RatingBar
                     android:id="@+id/rb_movies"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="?android:attr/ratingBarStyleSmall"
-                    android:layout_marginStart="@dimen/general_margin"
+                    app:layout_constraintTop_toBottomOf="@id/tv_release_date"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:layout_marginTop="@dimen/rating_bar_top_margin"
                     android:layout_marginLeft="@dimen/general_margin"
-                    app:layout_constraintLeft_toRightOf="@+id/iv_poster"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_release_date"
-                    android:layout_marginTop="@dimen/rating_bar_top_margin" />
+                    android:layout_marginStart="@dimen/general_margin" />
 
                 <ImageButton
                     android:id="@+id/ib_favorite"
@@ -80,21 +61,25 @@
                     android:onClick="setMovieAsFavorite"
                     app:srcCompat="@android:drawable/btn_star_big_off"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent" />
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:layout_marginRight="@dimen/content_side_margin"/>
 
                 <TextView
                     android:id="@+id/tv_synopsis"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/body_text_size"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/tv_synopsis_top_margin"
+                    android:layout_marginLeft="@dimen/content_side_margin"
+                    android:layout_marginRight="@dimen/content_side_margin"
                     tools:textColor="@android:color/black"
-                    app:layout_constraintTop_toBottomOf="@+id/iv_poster"
-                    app:layout_constraintLeft_toLeftOf="@+id/iv_poster"
-                    app:layout_constraintRight_toRightOf="@+id/ib_favorite" />
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/rb_movies"
+                    android:layout_marginStart="@dimen/content_side_margin"
+                    android:layout_marginEnd="@dimen/content_side_margin" />
 
             </android.support.constraint.ConstraintLayout>
-
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -102,10 +87,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/card_view_details"
-            app:cardBackgroundColor="@color/colorBackground2"
+            app:cardBackgroundColor="@color/colorCardView"
             card_view:contentPadding="@dimen/card_view_content_padding"
             card_view:elevation="@dimen/card_view_content_padding"
             card_view:cardCornerRadius="@dimen/card_view_content_padding"
+            android:translationZ="@dimen/card_view_elevation"
             card_view:cardUseCompatPadding="true">
 
             <RelativeLayout
@@ -123,7 +109,8 @@
                     android:id="@+id/rv_trailers"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_below="@+id/tv_trailer_label"/>
+                    android:layout_below="@+id/tv_trailer_label"
+                    android:layout_marginTop="@dimen/content_parallel_margin"/>
 
                 <ProgressBar
                     android:id="@+id/pb_loading_trailers"
@@ -141,10 +128,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/card_view_trailers"
-            app:cardBackgroundColor="@color/colorBackground2"
+            app:cardBackgroundColor="@color/colorCardView"
             card_view:contentPadding="@dimen/card_view_content_padding"
             card_view:elevation="@dimen/card_view_content_padding"
             card_view:cardCornerRadius="@dimen/card_view_content_padding"
+            android:translationZ="@dimen/card_view_elevation"
             card_view:cardUseCompatPadding="true">
 
             <RelativeLayout
@@ -174,6 +162,6 @@
 
         </android.support.v7.widget.CardView>
 
-    </RelativeLayout>
+    </LinearLayout>
 
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>

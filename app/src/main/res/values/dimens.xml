@@ -6,17 +6,19 @@
     <dimen name="tv_error_message_height">24dp</dimen>
     <dimen name="progress_bar_size">42dp</dimen>
     <dimen name="title_text_size">34sp</dimen>
-    <dimen name="body_text_size">16sp</dimen>
+    <dimen name="body_text_size">18sp</dimen>
     <dimen name="date_text_size">24sp</dimen>
 
     <dimen name="general_margin">24dp</dimen>
     <dimen name="general_padding">16dp</dimen>
     <dimen name="card_view_content_padding">8dp</dimen>
-    <dimen name="rating_bar_top_margin">16dp</dimen>
+    <dimen name="card_view_elevation">8dp</dimen>
+    <dimen name="rating_bar_top_margin">8dp</dimen>
     <dimen name="tv_date_top_margin">24dp</dimen>
-    <dimen name="tv_synopsis_top_margin">8dp</dimen>
-    <dimen name="tv_review_content_margin">8dp</dimen>
+    <dimen name="tv_synopsis_top_margin">16dp</dimen>
 
-    <dimen name="poster_width">120dp</dimen>
-    <dimen name="poster_height">160dp</dimen>
+    <dimen name="content_side_margin">8dp</dimen>
+    <dimen name="content_parallel_margin">8dp</dimen>
+
+    <dimen name="app_bar_height">340dp</dimen>
 </resources>
