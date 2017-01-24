@@ -25,5 +25,6 @@
     <string name="review_label" translatable="false">Review</string>
     <string name="no_reviews_label" translatable="false">No reviews yet</string>
     <string name="share_trailer">Share trailer</string>
+    <string name="toast_connect_to_internet_message">Please connect to the internet to see trailers and reviews</string>
 
 </resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="false">
+
+    <TextView
+        android:id="@+id/tv_review_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/body_text_size"
+        android:text="@string/review_label"
+        android:layout_marginTop="@dimen/content_parallel_margin"/>
+
+    <TextView
+        android:id="@+id/tv_review_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/body_text_size"
+        android:layout_below="@+id/tv_review_label"
+        android:layout_marginBottom="@dimen/content_parallel_margin" />
+
+</RelativeLayout>

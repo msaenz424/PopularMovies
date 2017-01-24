@@ -14,6 +14,7 @@ import com.squareup.picasso.Picasso;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder>{
 
+    private static final int POSTER_PATH_COL_INDEX = 2;     // position of column "poster_path" in cursor
     private Cursor mMoviesCursor = null;
     private Context mContext;
     final private MovieAdapterOnClickHandler movieAdapterOnClickHandle;
@@ -43,8 +44,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     @Override
     public void onBindViewHolder(MoviesAdapterViewHolder holder, int position) {
         mMoviesCursor.moveToPosition(position);
-        /** TODO use constant variable. 2 is the index of column "poster_path" in cursor. */
-        String posterPath = mMoviesCursor.getString(2);
+        String posterPath = mMoviesCursor.getString(POSTER_PATH_COL_INDEX);
         Picasso.with(mContext).load(NetworkUtils.BASE_URL + NetworkUtils.IMAGE_SIZE + posterPath).into(holder.mMoviePoster);
     }
 

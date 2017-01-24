@@ -1,11 +1,9 @@
 package com.android.mig.popularmovie;
 
-import android.content.Context;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -22,6 +20,7 @@ import android.widget.TextView;
 
 import com.android.mig.popularmovie.data.MoviesDbUtils;
 import com.android.mig.popularmovie.sync.MoviesScheduleSync;
+import com.android.mig.popularmovie.utils.NetworkUtils;
 
 import static android.widget.GridLayout.VERTICAL;
 import static com.android.mig.popularmovie.SettingsActivity.SettingsFragment.getSortByPreference;
@@ -112,10 +111,15 @@ public class MainActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new AsyncTaskLoader<Cursor>(this){
             Cursor mMoviesCursor;
+            String sortByPreference;
 
             @Override
             protected void onStartLoading() {
-                if (mMoviesCursor != null){
+                sortByPreference = getSortByPreference(MainActivity.this);
+
+                // if the current preference is favorite, then forceLoad to read DB to ensure
+                // that list of movies displays recent changes the user does in detail activity
+                if (mMoviesCursor != null && !sortByPreference.equals(getString(R.string.pref_order_by_favorite_value))){
                     deliverResult(mMoviesCursor);
                 } else {
                     mPbLoading.setVisibility(View.VISIBLE);
@@ -126,14 +130,14 @@ public class MainActivity extends AppCompatActivity
             @Override
             public Cursor loadInBackground() {
                 // reads data from database
-                String sortByPreference = getSortByPreference(MainActivity.this);
+                //String sortByPreference = getSortByPreference(MainActivity.this);
                 Cursor data = MoviesDbUtils.readDbSortedByPreference(MainActivity.this, sortByPreference, NUMBER_OF_ROWS);
 
                 // if cursor is empty and favorites isn't the preference selected then download and insert new data
                 // This should happen only the first time that app is opened. Keep in mind that if user doesn't
                 // have any favorite movie the cursor will return empty too.
                 if (data.getCount() == 0 && !sortByPreference.equals(getString(R.string.pref_order_by_favorite_value))){
-                    if (isOnline()){
+                    if (NetworkUtils.isOnline(MainActivity.this)){
                         MoviesDbUtils.insertNewDataFromTheCloud(MainActivity.this, getString(R.string.pref_order_by_popularity_value));
                         MoviesDbUtils.insertNewDataFromTheCloud(MainActivity.this, getString(R.string.pref_order_by_rating_value));
                         return MoviesDbUtils.readDbSortedByPreference(MainActivity.this, sortByPreference, NUMBER_OF_ROWS);
@@ -154,8 +158,7 @@ public class MainActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mPbLoading.setVisibility(View.INVISIBLE);
         mTvNoConnection.setVisibility(View.VISIBLE);
-        /** TODO find a way to make use of isOnline() function only once (it's being used in loadInBackground as well) */
-        if (isOnline()){
+        if (NetworkUtils.isOnline(this)){
             mTvNoConnection.setVisibility(View.INVISIBLE);
         }
         if (data != null){
@@ -166,14 +169,4 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { }
 
-    /**
-     * Checks if there is Internet connection
-     *
-     * @return true if there is connection; false if there isn't
-     */
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
 }

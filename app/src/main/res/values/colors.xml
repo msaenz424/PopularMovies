@@ -6,4 +6,5 @@
     <color name="colorCardView">#B0BEC5</color>
     <color name="colorBackground">#ECEFF1</color>
     <color name="tv_error_background">#BF000000</color>
+    <color name="tv_error_text">#FFFF00</color>
 </resources>

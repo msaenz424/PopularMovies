@@ -1,5 +1,8 @@
 package com.android.mig.popularmovie.utils;
 
+import android.app.Activity;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,5 +71,17 @@ public final class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+
+    /**
+     * Checks if there is Internet connection
+     *
+     * @return true if there is connection; false if there isn't
+     */
+    public static boolean isOnline(Activity activity) {
+        ConnectivityManager cm = (ConnectivityManager)  activity.getSystemService(activity.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

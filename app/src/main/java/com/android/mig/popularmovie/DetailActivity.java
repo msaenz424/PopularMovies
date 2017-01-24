@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.mig.popularmovie.data.MoviesContract;
 import com.android.mig.popularmovie.utils.NetworkUtils;
@@ -38,6 +39,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private static final float STEP_SIZE = 0.25f;
     private static final int TRAILER_LOADER_ID = 77;
     private static final int REVIEW_LOADER_ID = 88;
+    private static final String FAVORITE_VALUE = "favorite";
     private static int MAX_ORIGINAL_STARS = 10;    // number of starts used on API
     private static int NUMBER_STARS = 5;           // number of starts to be used on app
     private TextView tvYearRelease, tvSynopsis, tvTrailerLabel, tvCardviewReviewLabel;
@@ -52,6 +54,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private boolean mIsFavorite;
     private int mMovieID;
     private ShareActionProvider mShareActionProvider;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +64,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         ivPoster = (ImageView) findViewById(R.id.iv_poster);
         tvYearRelease = (TextView) findViewById(R.id.tv_release_date);
         rbRating = (RatingBar) findViewById(R.id.rb_movies);
@@ -90,6 +93,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 mIsFavorite = (mMovie.getIsFavorite() == 1);    // 1 = true, 0 = false
             }
         }
+        if (savedInstanceState != null){
+            mIsFavorite = savedInstanceState.getBoolean(FAVORITE_VALUE);
+        }
         setFavoriteStarOnOff();
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvTrailers.setLayoutManager(mLinearLayoutManager);
@@ -102,6 +108,17 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mReviewsAdapter = new ReviewsAdapter();
         rvReviews.setAdapter(mReviewsAdapter);
         getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, null, this);
+
+        // if there no internet connection tell user to connect in order to watch trailers and reviews
+        if (!NetworkUtils.isOnline(this)){
+            Toast.makeText(this, getString(R.string.toast_connect_to_internet_message), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(FAVORITE_VALUE, mIsFavorite);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -162,6 +179,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         contentValue.put(MoviesContract.MoviesEntry.COLUMN_IS_FAVORITE, mIsFavorite);
         getContentResolver().update(uriWithID, contentValue, "_id=?", new String[]{String.valueOf(mMovieID)});
         setFavoriteStarOnOff();
+
     }
 
     /**
