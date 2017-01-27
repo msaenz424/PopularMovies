@@ -17,7 +17,7 @@ public final class NetworkUtils {
     public static final String IMAGE_SIZE = "w342/"; // valid values: "w92/", "w154/", "w185/", "w342/", "w500/", "w780/", "original/"
 
     private static final String MOVIES_AUTHORITY = "http://api.themoviedb.org/3";
-    private static final String API_KEY = "[YOUR API KEY GOES HERE]"; // update your API KEY for app to work
+    private static final String API_KEY = "3ae639a59bb3048df7aa586209fab5ce"; //"[YOUR API KEY GOES HERE]"; // update your API KEY for app to work
     private static final String API_KEY_PARAM = "api_key";
     private static final String MOVIES_PATH_SEGMENT = "/movie/";
 

@@ -28,12 +28,11 @@ public class MoviesScheduleSync {
         Job mJob = firebaseJobDispatcher.newJobBuilder()
                 .setService(MoviesFirebaseJobService.class)
                 .setTag(SYNC_TAG)
-                .setRecurring(false)
                 .setLifetime(Lifetime.FOREVER)
                 .setRecurring(true)
-                .setTrigger(Trigger.executionWindow(
-                        SYNC_INTERVAL_SECONDS,
-                        SYNC_INTERVAL_SECONDS + SYNC_FLEXIBLE_SECONDS))     // every 11-12 hours
+                .setTrigger(Trigger.executionWindow(5,10))
+                        //SYNC_INTERVAL_SECONDS,
+                        //SYNC_INTERVAL_SECONDS + SYNC_FLEXIBLE_SECONDS))     // every 11-12 hours
                 .build();
         firebaseJobDispatcher.mustSchedule(mJob);
     }

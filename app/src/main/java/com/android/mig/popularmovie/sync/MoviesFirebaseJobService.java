@@ -7,7 +7,7 @@ import com.firebase.jobdispatcher.JobService;
 
 public class MoviesFirebaseJobService extends JobService{
 
-    private AsyncTask mBackgroundTask;
+    private AsyncTask<Void, Void, Void> mBackgroundTask;
 
     @Override
     public boolean onStartJob(final JobParameters job) {
@@ -24,7 +24,7 @@ public class MoviesFirebaseJobService extends JobService{
             }
         };
         mBackgroundTask.execute();
-        return false;
+        return true;
     }
 
     @Override
