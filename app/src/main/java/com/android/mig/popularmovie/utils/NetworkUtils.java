@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+
+import com.android.mig.popularmovie.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -17,7 +20,7 @@ public final class NetworkUtils {
     public static final String IMAGE_SIZE = "w342/"; // valid values: "w92/", "w154/", "w185/", "w342/", "w500/", "w780/", "original/"
 
     private static final String MOVIES_AUTHORITY = "http://api.themoviedb.org/3";
-    private static final String API_KEY = "[YOUR API KEY GOES HERE]"; // update your API KEY for app to work
+    private static final String API_KEY = BuildConfig.MOVIES_API_KEY; // use your API KEY for app to work
     private static final String API_KEY_PARAM = "api_key";
     private static final String MOVIES_PATH_SEGMENT = "/movie/";
 
