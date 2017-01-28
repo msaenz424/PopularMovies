@@ -3,7 +3,6 @@ package com.android.mig.popularmovie.data;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import com.android.mig.popularmovie.R;
 import com.android.mig.popularmovie.utils.NetworkUtils;
@@ -27,8 +26,7 @@ public class MoviesDbUtils {
         try {
             urlJsonResponse = NetworkUtils.getResponseFromHttpUrl(ratingMoviesUrl);
             ContentValues[] ratedContentValuesArray = OpenMoviesJsonUtils.getMovieContentValuesFromJson(urlJsonResponse);
-            int inserted = context.getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, ratedContentValuesArray);
-            Log.v("test bulkinsert", "rows inserted: " + String.valueOf(inserted));
+            context.getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, ratedContentValuesArray);
         } catch (IOException e) {
             e.printStackTrace();
         }

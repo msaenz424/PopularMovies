@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
+import android.os.SystemClock;
 
 import com.android.mig.popularmovie.R;
 import com.android.mig.popularmovie.data.MoviesContract;
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 
 public class MoviesSyncTask {
+    private static final int MILLISECONDS_SYNC_DELAY = 12000;
 
     /**
      * Updates every single row on database,
@@ -31,7 +32,6 @@ public class MoviesSyncTask {
                     // search movie by ID on the cloud
                     String movieID = String.valueOf(moviesCursor.getInt(0));
                     URL movieUrl = NetworkUtils.buildURI(movieID);
-                    Log.v("cursor test", c++ + " " + moviesCursor.getString(1));
                     String urlResponse = NetworkUtils.getResponseFromHttpUrl(movieUrl);
 
                     // get details of a single movie and update DB
@@ -39,13 +39,18 @@ public class MoviesSyncTask {
                     Uri uri = MoviesContract.MoviesEntry.CONTENT_URI;
                     uri = uri.buildUpon().appendPath(movieID).build();
                     context.getContentResolver().update(uri, movieContentValue, "_id=?", new String[]{movieID});
+
+                    // delay if number of requests reached the server's limits
+                    if ((c % NetworkUtils.SERVER_REQUESTS_LIMIT) == 0){
+                        SystemClock.sleep(MILLISECONDS_SYNC_DELAY);
+                    }
                 }
             }
             moviesCursor.close();
 
+            SystemClock.sleep(MILLISECONDS_SYNC_DELAY);
             MoviesDbUtils.insertNewDataFromTheCloud(context, context.getString(R.string.pref_order_by_popularity_value));
             MoviesDbUtils.insertNewDataFromTheCloud(context, context.getString(R.string.pref_order_by_rating_value));
-            Log.v("sync", "******************* SYNCED ****************************");
         } catch (IOException e) {
             e.printStackTrace();
         }

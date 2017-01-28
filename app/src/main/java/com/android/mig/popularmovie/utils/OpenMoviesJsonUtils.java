@@ -1,7 +1,6 @@
 package com.android.mig.popularmovie.utils;
 
 import android.content.ContentValues;
-import android.util.Log;
 
 import com.android.mig.popularmovie.data.MoviesContract;
 
@@ -68,7 +67,6 @@ public class OpenMoviesJsonUtils {
 
         ContentValues[] contentValuesArray = null;
         try {
-            Log.d("urlJSONResponse after ", movieJsonResponse.toString());
             JSONObject moviesJson = new JSONObject(movieJsonResponse);
             JSONArray moviesJsonArray = moviesJson.getJSONArray(JSON_ARRAY_RESULTS);
             int jsonArraySize = moviesJsonArray.length();
